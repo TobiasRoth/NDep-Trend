@@ -1,0 +1,214 @@
+---
+title: xxx
+preprint: false
+author: 
+  - name: Tobias Roth
+    affiliation: 1
+    corresponding: true
+    email: t.roth@unibas.ch
+  - name: Lukas Kohli
+    affiliation: 2
+affiliation:
+  - code: 1
+    address: Zoological Institute, University of Basel, Basel, Switzerland
+  - code: 2
+    address: Hintermann  Weber AG, Austrasse 2a, 4153 Reinach, Switzerland
+abstract: >
+  xxx
+header-includes: >
+  \usepackage{lipsum}
+bibliography: Library.bib
+output: 
+  rticles::peerj_article:
+    base_format: bookdown::pdf_document2 
+---
+
+```{r settings, echo = FALSE, message=FALSE}
+# Libraries
+library(knitr)
+library(xtable)
+library(tidyverse)
+library(arm)
+library(nlme)
+library(simba)
+
+# Load data
+load("RData/surv.RData")
+load("RData/pl.RData")
+load("RData/sites.RData")
+
+# Knitr settings 
+opts_chunk$set(echo = FALSE, hide = TRUE, cache = TRUE, warning = FALSE, message = FALSE,
+               fig.asp = .6, fig.width = 8, out.width = "100%")
+
+# Theme of ggplot
+theme_set(theme_classic())
+
+# Remove comment for xtable
+options(xtable.comment = FALSE)
+```
+
+
+# Introduction {-}
+xxx
+
+# Materials & Methods {-}
+
+## Monitoring data {-}
+- Selection of sample sites based on 1366 K_Standort.csv column "E23_1366".
+- Three surveys 2003-2007, 2008-2012 and 2013 - 2017.
+
+## Plant traits {-}
+
+Functional traits:
+
+- SLA: specific leaf area
+- CH: canopy height
+- SM: Seed mass
+
+
+Ellenberg indicator values:
+
+- L: light
+- N: Nutrient contentent
+- T: Temperature
+- F: Huminity
+
+
+Community measures:
+
+- Species richness: number of recorded species per $10m^2$.
+- Spatial turnover (beta-diversity): Average turnover between all pair-wise combinations of study plots.
+- gamma diversity: Total number of species recorded in all study plots.
+
+## Statistical analyses {-}
+
+Environmental variables were standardized.
+
+
+```{r dataprep}
+surv$yr <- (surv$yearPl - 2010) / 10
+surv$Hoehe <- (surv$Hoehe - 1000) / 500
+surv$NTOT <- (surv$NTOT2007 - 10) / 10
+surv$Neig <- surv$Neig / 10
+surv$Preci <- (surv$bio12 - 1000) / 200
+# surv$F <- (surv$F - 3) / 0.5
+# surv$L <- (surv$L - 3) / 0.5
+```
+
+
+
+# Results {-}
+Different measures of total community structure suggested that plant communities of mountain hay meadow were rather stable between 2003 and 2017: For each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity, average ellenberg values for temperature, nutrients, light, huminity and reaction, and average of species' canopy height, specific leaf area and seed mass did not vary much. For all measures, the average temperal trend per site did not differ significantly from zero (Table \@ref(temporaltrends)). Note that beta- and gamma-diversity are note available for single sites and thus mixed models could not be applied.
+
+```{r temporaltrends, results='asis', }
+res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Gamma-Diversity", 
+                           "Temperature value", "Huminity value", "Nutrients value", "Light value", 
+                           "Canopy height", "Specific leaf area", "Seed mass"))
+res$'Period 1' <- ""; res$'Period 2' <- ""; res$'Period 3' <- ""
+res$'Temporal-Trend' <- ""; res$'P-value' <- ""
+
+# Alpha diversity
+res[1, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SR, surv$Visit, mean), 2)
+tmp <- summary(glmer(SR ~ yr + (yr|aID_STAO), data = surv, family = poisson))$coefficients
+res[1, "Temporal-Trend"] <- formatC(tmp["yr", "Estimate"], format = "f", digits = 3)
+res[1, "P-value"] <- formatC(tmp["yr", "Pr(>|z|)"], format = "f", digits = 3)
+
+# Beta diversity
+getbeta <- function(x) {
+  tmp <- simba::sim(pl %>% filter(Visit == x) %>% dplyr::select(aID_STAO, aID_SP, Occ), method = "simpson", 
+            listin = TRUE, listout = TRUE)
+  formatC(tmp$simpson, format = "f", digits = 2)
+}
+res[2, c("Period 1", "Period 2", "Period 3")] <- lapply(1:3, getbeta)
+
+# Gamma diversity
+res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(pl$aID_SP, pl$Visit, function(x) length(unique(x)))
+
+# Mean community index
+res[4, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$T, surv$Visit, mean), 2)
+tmp <- summary(lme(T ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[4, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[4, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+
+res[5, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$F, surv$Visit, mean), 2)
+tmp <- summary(lme(F ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[5, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[5, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+
+res[6, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$N, surv$Visit, mean), 2)
+tmp <- summary(lme(N ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[6, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[6, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+
+res[7, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$L, surv$Visit, mean), 2)
+tmp <- summary(lme(L ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[7, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[7, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+
+
+# Average of functional traits
+res[ 8, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$CH, surv$Visit, mean), 2)
+tmp <- summary(lmer(CH ~ yr + (yr|aID_STAO), data = surv))$coefficients
+res[ 8, "Temporal-Trend"] <- formatC(tmp["yr", "Estimate"], format = "f", digits = 3)
+tmp <- anova(lmer(CH ~ yr + (yr|aID_STAO), data = surv), lmer(CH ~ 1 + (yr|aID_STAO), data = surv))[2, "Pr(>Chisq)"]
+res[ 8, "P-value"] <- formatC(tmp, format = "f", digits = 3)
+
+res[9, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SLA, surv$Visit, mean), 2)
+tmp <- summary(lme(SLA ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[9, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[9, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+
+res[10, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SM, surv$Visit, mean), 2)
+tmp <- summary(lme(SM ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
+res[10, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
+res[10, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+ 
+print(xtable(res, align = c("l", "l", rep("r", 5)), label = "temporaltrends", caption = "Average measures of community structure for the three survey periods (in each period all sites are surveyed once). The temporal trends and p-values are based on linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution) with site-ID as random effect. Temporal-trends are given per 10 years. Linear mixed models could not be applied for beta- and gamma-diversity because measures are not available for the single sites."), include.rownames=FALSE)
+```
+
+The temporal stability suggested by the community measures were, however, in contrast to the temporal turn-over of recorded species (i.e. species exchange ratio sensu @Hillebrand2018). In average $\pm$ SD the proportion of species that differed between two surveys was `r formatC(100 * mean(sites$Turnover), format = "f", digits = 1)` $\pm$ `r formatC(100 * sd(sites$Turnover), format = "f", digits = 1)`.
+
+```{r}
+summary(lm(Turnover ~ NTOT2007 + Hoehe + Neig + Expos, data = sites))
+```
+
+
+```{r}
+# Colonization probability
+# mean(d$Visit2[d$Visit1 == 0])
+# mean(d$Visit3[d$Visit2 == 0])
+# 
+# col1 <- summary(glmer(Visit2 ~ NTOT2000 + Hoehe + T + N + L + F + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit1 == 0), family = binomial))
+# col2 <- summary(glmer(Visit3 ~ T + N + L + F + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit2 == 0), family = binomial))
+# col3 <- summary(glmer(Visit2 ~ log(CH) + log(SLA) + log(SM) + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit1 == 0), family = binomial))
+# col4 <- summary(glmer(Visit3 ~ log(CH) + log(SLA) + log(SM) + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit2 == 0), family = binomial))
+# 
+# # Local survival
+# mean(d$Visit2[d$Visit1 == 1])
+# mean(d$Visit3[d$Visit2 == 1])
+# phi1 <- summary(glmer(Visit2 ~ NTOT2000 + Hoehe + T + N + L + F + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit1 == 1), family = binomial))
+# phi2 <- summary(glmer(Visit3 ~ NTOT2000 + Hoehe + T + N + L + F + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit2 == 1), family = binomial))
+# phi3 <- summary(glmer(Visit2 ~ log(CH) + log(SLA) + log(SM) + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit1 == 1), family = binomial))
+# phi4 <- summary(glmer(Visit3 ~ log(CH) + log(SLA) + log(SM) + (1|aID_SP) + (1|aID_STAO), 
+#               data = d %>% filter(Visit2 == 1), family = binomial))
+```
+
+
+# Discussion {-}
+xxx
+
+# Conclusions {-}
+xxx
+
+# Acknowledgements {-}
+xxx
+
+# References {-}

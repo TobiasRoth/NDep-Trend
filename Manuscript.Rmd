@@ -50,7 +50,7 @@ options(xtable.comment = FALSE)
 
 
 # Introduction {-}
-xxx
+
 
 # Materials & Methods {-}
 
@@ -146,7 +146,6 @@ tmp <- summary(lme(L ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
 res[7, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
 res[7, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
 
-
 # Average of functional traits
 res[ 8, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$CH, surv$Visit, mean), 2)
 tmp <- summary(lmer(CH ~ yr + (yr|aID_STAO), data = surv))$coefficients
@@ -170,7 +169,14 @@ print(xtable(res, align = c("l", "l", rep("r", 5)), label = "temporaltrends", ca
 The temporal stability suggested by the community measures were, however, in contrast to the temporal turn-over of recorded species (i.e. species exchange ratio sensu @Hillebrand2018). In average $\pm$ SD the proportion of species that differed between two surveys was `r formatC(100 * mean(sites$Turnover), format = "f", digits = 1)` $\pm$ `r formatC(100 * sd(sites$Turnover), format = "f", digits = 1)`.
 
 ```{r}
-summary(lm(Turnover ~ NTOT2007 + Hoehe + Neig + Expos, data = sites))
+tt <- sites %>% gather(Period, Turnover, -aID_STAO, -Elevation,  -Inclination, -Temperature, -Precipitation, -NDEP2010) 
+
+
+summary(lmer(Turnover ~ Period * (Temperature + Precipitation + NDEP2010 + Inclination) +
+               (1|aID_STAO), data = tt)) 
+summary(lmer(Turnover ~ Period + Temperature + Precipitation + NDEP2010 + Inclination +
+               (1|aID_STAO), data = tt))
+# Neigung als Mass für Land-use intensity
 ```
 
 

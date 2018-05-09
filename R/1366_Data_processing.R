@@ -66,7 +66,8 @@ surv <- surv %>% left_join(
               T = mean(T, na.rm = TRUE), 
               F = mean(F, na.rm = TRUE),
               N = mean(N, na.rm = TRUE),
-              L = mean(L, na.rm = TRUE)), copy = TRUE)
+              L = mean(L, na.rm = TRUE),
+              MV = mean(MV, na.rm = TRUE)), copy = TRUE)
 
 #------------------------------------------------------------------------------------------------------
 # Selection plants data
@@ -88,14 +89,16 @@ pl <- tbl(db, "PL") %>%
 sites <- data.frame(aID_STAO = as.integer(sel)) %>% 
   as.tibble() %>% 
   left_join(tbl(db, "RAUMDATEN_Z9") %>% 
-              dplyr::select(aID_STAO, Hoehe, Neig, Expos, AS09_72, AS09_17, CACO3, Vernass, BGR_6, 
-                            bio1, bio12, bio13, bio14), copy = TRUE) %>% 
+              transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
+                            Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              dplyr::select(aID_STAO, NTOT2007), copy = TRUE)
+              transmute(aID_STAO = aID_STAO, NDEP2010 = NTOT2010b), copy = TRUE)
 
 for(i in 1:nrow(sites)) {
-  sites[i, "Turnover"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i]) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "simpson", 
-      listin = TRUE, listout = TRUE)$simpson %>% mean
+  sites[i, "Turnover1"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
+      listin = TRUE, listout = TRUE)$cocogaston %>% mean
+  sites[i, "Turnover2"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
+                               listin = TRUE, listout = TRUE)$cocogaston %>% mean
 }
   
 #------------------------------------------------------------------------------------------------------

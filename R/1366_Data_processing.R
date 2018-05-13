@@ -43,10 +43,10 @@ surv <- tbl(db, "KD_Z9") %>%
   filter(!is.na(match(aID_STAO, sel)) & !is.na(yearPl) & yearP >= 2003 & yearP <= 2017) %>% 
   transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, yearP = yearP, yearPl = yearPl, Visit = as.integer(floor((yearP - 1998) / 5))) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9") %>% 
-              dplyr::select(aID_STAO, Hoehe, Neig, Expos, AS09_72, AS09_17, CACO3, Vernass, BGR_6, 
-                            bio1, bio12, bio13, bio14), copy = TRUE) %>% 
+              transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
+                       Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              dplyr::select(aID_STAO, NTOT2007), copy = TRUE)
+              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
   
 # Add community measures to 'surv'
 surv <- surv %>% left_join(
@@ -92,19 +92,95 @@ sites <- data.frame(aID_STAO = as.integer(sel)) %>%
               transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
                             Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              transmute(aID_STAO = aID_STAO, NDEP2010 = NTOT2010b), copy = TRUE)
+              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
+
+# for(i in 1:nrow(sites)) {
+#   sites[i, "Turnover1"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
+#       listin = TRUE, listout = TRUE)$cocogaston %>% mean
+#   sites[i, "Turnover2"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
+#                                listin = TRUE, listout = TRUE)$cocogaston %>% mean
+# }
 
 for(i in 1:nrow(sites)) {
-  sites[i, "Turnover1"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
-      listin = TRUE, listout = TRUE)$cocogaston %>% mean
-  sites[i, "Turnover2"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
-                               listin = TRUE, listout = TRUE)$cocogaston %>% mean
+  tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
+  sites[i, "nochange1"] <- tt$a
+  sites[i, "change1"] <- tt$b + tt$c
+  tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
+  sites[i, "nochange2"] <- tt$a
+  sites[i, "change2"] <- tt$b + tt$c
 }
-  
+
+#------------------------------------------------------------------------------------------------------
+# Data transformation
+#------------------------------------------------------------------------------------------------------
+surv$yr <- (surv$yearPl - 2010) / 10
+surv$Elevation <- (surv$Elevation - 1000) / 500
+surv$Temperature <- (surv$Temperature - 50) / 10
+surv$Precipitation <- (surv$Precipitation - 1000) / 200
+surv$NTOT <- (surv$NTOT - 10) / 10
+surv$Inclination <- (surv$Inclination - 10) / 10
+
+sites$Elevation <- (sites$Elevation - 1000) / 500
+sites$Temperature <- (sites$Temperature - 50) / 10
+sites$Precipitation <- (sites$Precipitation - 1000) / 200
+sites$NTOT <- (sites$NTOT - 10) / 10
+sites$Inclination <- (sites$Inclination - 10) / 10
+
+pl$T <- (pl$T - 3)
+pl$F <- (pl$F - 3)
+pl$N <- (pl$N - 3)
+pl$L <- (pl$L - 3)
+
+#------------------------------------------------------------------------------------------------------
+# Compile data for colonization and local survival calculations
+#------------------------------------------------------------------------------------------------------
+d <- expand.grid(aID_STAO = sites$aID_STAO, aID_SP = unique(pl$aID_SP)) %>% as.tibble() %>% 
+  left_join(pl %>% group_by(aID_SP) %>% summarise(T = min(T), F = min(F), N = min(N), L = min(L))) %>% 
+  left_join(pl %>% filter(yearP >= 2003 & yearP<= 2007) %>% 
+              transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ1 = Occ)) %>% 
+  left_join(pl %>% filter(yearP >= 2008 & yearP <= 2012) %>% 
+              transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ2 = Occ)) %>% 
+  left_join(pl %>% filter(yearP >= 2013 & yearP <= 2017) %>% 
+              transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ3 = Occ)) %>% 
+  replace_na(replace = list(Occ1 = 0, Occ2 = 0, Occ3 = 0)) %>% 
+  left_join(sites) 
+
+# Prepare colonization data
+coldat <- rbind(
+  d %>% filter(Occ1 == 0) %>% 
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
+              Temperature = Temperature, Precipitation = Precipitation,
+              NTOT = NTOT, Inclination = Inclination,
+              T = T, F = F, N = N, L = L, Occ = Occ2, Period = 1),
+  d %>% filter(Occ2 == 0) %>% 
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
+              Temperature = Temperature, Precipitation = Precipitation,
+              NTOT = NTOT, Inclination = Inclination,
+              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))%>% 
+  filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L)) 
+coldat <- coldat %>% left_join(coldat %>% group_by(aID_SP) %>% summarise(ausw = sum(Occ)>0)) %>% 
+  filter(ausw)
+
+# Prepare survival dat
+survdat <- rbind(
+  d %>% filter(Occ1 == 1) %>% 
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
+              Temperature = Temperature, Precipitation = Precipitation,
+              NTOT = NTOT, Inclination = Inclination,
+              T = T, F = F, N = N, L = L, Occ = Occ2, Period = 1),
+  d %>% filter(Occ2 == 1) %>% 
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
+              Temperature = Temperature, Precipitation = Precipitation,
+              NTOT = NTOT, Inclination = Inclination,
+              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2)) %>% 
+  filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L))
+
 #------------------------------------------------------------------------------------------------------
 # Save data
 #------------------------------------------------------------------------------------------------------
 save(surv, file = "RData/surv.RData")
 save(pl, file = "RData/pl.RData")
 save(sites, file = "RData/sites.RData")
+save(coldat, file = "RData/coldat.RData")
+save(survdat, file = "RData/survdat.RData")
 

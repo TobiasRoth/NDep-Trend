@@ -382,3 +382,11 @@ xxx
 xxx
 
 # References {-}
+
+
+
+```{r}
+# The MS was build with the following R sesstion:
+writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
+```
+

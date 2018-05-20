@@ -22,7 +22,7 @@ db <- src_sqlite(path = "~/Documents/Dropbox/DB_BDM.db", create = FALSE)
 # Selection of sites
 #------------------------------------------------------------------------------------------------------
 # Import list with sites
-sel <- read_delim("Data/1366 K_Standort.csv", delim = ";") %>% 
+sel <- read_delim("Data_protected/1366 K_Standort.csv", delim = ";") %>% 
   filter(E23_1366 == "ja") %>% 
   transmute(aID_STAO = aIdStaoZ9)
 
@@ -93,13 +93,6 @@ sites <- data.frame(aID_STAO = as.integer(sel)) %>%
                             Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
               transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
-
-# for(i in 1:nrow(sites)) {
-#   sites[i, "Turnover1"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
-#       listin = TRUE, listout = TRUE)$cocogaston %>% mean
-#   sites[i, "Turnover2"] <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", 
-#                                listin = TRUE, listout = TRUE)$cocogaston %>% mean
-# }
 
 for(i in 1:nrow(sites)) {
   tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
@@ -176,11 +169,24 @@ survdat <- rbind(
   filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L))
 
 #------------------------------------------------------------------------------------------------------
-# Save data
+# Change siteID and save data
 #------------------------------------------------------------------------------------------------------
+siteIDs <- data.frame(
+  aID_STAO = sites$aID_STAO,
+  siteID = as.integer(factor(sites$aID_STAO))
+  )
+surv$aID_STAO <- siteIDs$siteID[match(surv$aID_STAO, siteIDs$aID_STAO)]
 save(surv, file = "RData/surv.RData")
+
+pl$aID_STAO <- siteIDs$siteID[match(pl$aID_STAO, siteIDs$aID_STAO)]
 save(pl, file = "RData/pl.RData")
+
+sites$aID_STAO <- siteIDs$siteID[match(sites$aID_STAO, siteIDs$aID_STAO)]
 save(sites, file = "RData/sites.RData")
+
+coldat$aID_STAO <- siteIDs$siteID[match(coldat$aID_STAO, siteIDs$aID_STAO)]
 save(coldat, file = "RData/coldat.RData")
+
+survdat$aID_STAO <- siteIDs$siteID[match(survdat$aID_STAO, siteIDs$aID_STAO)]
 save(survdat, file = "RData/survdat.RData")
 

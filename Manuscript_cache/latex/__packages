@@ -1,5 +1,6 @@
 base
 knitr
+kableExtra
 xtable
 tidyverse
 ggplot2
@@ -20,4 +21,3 @@ lattice
 vegan
 simba
 bindrcpp
-kableExtra

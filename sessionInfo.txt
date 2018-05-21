@@ -10,7 +10,8 @@ locale:
 [1] de_CH.UTF-8/de_CH.UTF-8/de_CH.UTF-8/C/de_CH.UTF-8/de_CH.UTF-8
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
+[1] grid      stats     graphics  grDevices utils     datasets  methods  
+[8] base     
 
 other attached packages:
  [1] bindrcpp_0.2.2   simba_0.3-5      vegan_2.5-2      lattice_0.20-35 
@@ -21,22 +22,22 @@ other attached packages:
 [21] kableExtra_0.8.0 knitr_1.20      
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.16       lubridate_1.7.4    assertthat_0.2.0  
- [4] rprojroot_1.3-2    digest_0.6.15      psych_1.8.4       
- [7] R6_2.2.2           cellranger_1.1.0   plyr_1.8.4        
-[10] backports_1.1.2    coda_0.19-1        evaluate_0.10.1   
-[13] httr_1.3.1         pillar_1.2.2       rlang_0.2.0       
-[16] lazyeval_0.2.1     readxl_1.1.0       rstudioapi_0.7    
-[19] minqa_1.2.4        nloptr_1.0.4       rticles_0.4.2.9000
-[22] rmarkdown_1.9      splines_3.5.0      foreign_0.8-70    
-[25] munsell_0.4.3      broom_0.4.4        compiler_3.5.0    
-[28] modelr_0.1.2       xfun_0.1           pkgconfig_2.0.1   
-[31] mnormt_1.5-5       mgcv_1.8-23        htmltools_0.3.6   
-[34] bookdown_0.7       viridisLite_0.3.0  crayon_1.3.4      
-[37] grid_3.5.0         jsonlite_1.5       gtable_0.2.0      
-[40] magrittr_1.5       scales_0.5.0       cli_1.0.0         
-[43] stringi_1.2.2      reshape2_1.4.3     xml2_1.2.0        
-[46] tools_3.5.0        glue_1.2.0         hms_0.4.2         
-[49] abind_1.4-5        parallel_3.5.0     yaml_2.1.19       
-[52] colorspace_1.3-2   cluster_2.0.7-1    rvest_0.3.2       
-[55] bindr_0.1.1        haven_1.1.1       
+ [1] httr_1.3.1         jsonlite_1.5       viridisLite_0.3.0 
+ [4] splines_3.5.0      modelr_0.1.2       assertthat_0.2.0  
+ [7] cellranger_1.1.0   yaml_2.1.19        pillar_1.2.2      
+[10] backports_1.1.2    glue_1.2.0         digest_0.6.15     
+[13] rvest_0.3.2        minqa_1.2.4        colorspace_1.3-2  
+[16] htmltools_0.3.6    plyr_1.8.4         psych_1.8.4       
+[19] pkgconfig_2.0.1    broom_0.4.4        haven_1.1.1       
+[22] bookdown_0.7       scales_0.5.0       mgcv_1.8-23       
+[25] rticles_0.4.2.9000 lazyeval_0.2.1     cli_1.0.0         
+[28] mnormt_1.5-5       magrittr_1.5       crayon_1.3.4      
+[31] readxl_1.1.0       evaluate_0.10.1    xml2_1.2.0        
+[34] foreign_0.8-70     tools_3.5.0        hms_0.4.2         
+[37] munsell_0.4.3      cluster_2.0.7-1    compiler_3.5.0    
+[40] rlang_0.2.0        nloptr_1.0.4       rstudioapi_0.7    
+[43] labeling_0.3       rmarkdown_1.9      gtable_0.2.0      
+[46] codetools_0.2-15   abind_1.4-5        reshape2_1.4.3    
+[49] R6_2.2.2           lubridate_1.7.4    bindr_0.1.1       
+[52] rprojroot_1.3-2    stringi_1.2.2      parallel_3.5.0    
+[55] Rcpp_0.12.16       xfun_0.1           coda_0.19-1       

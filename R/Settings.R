@@ -15,6 +15,7 @@ library(knitr)
 library(kableExtra)
 library(xtable)
 library(tidyverse)
+library(broom)
 library(arm)
 library(nlme)
 library(simba)
@@ -96,5 +97,6 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
   }
 }
+
 
 

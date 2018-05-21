@@ -449,35 +449,56 @@ ex1
 
 
 ```{r}
-x <- 28
-
-getsamples <- function(s, nspec, d) {
-  sample(d$T, nspec, replace = FALSE) %>% mean(na.rm = TRUE)
+# Functions 
+getsamples <- function(s, nspec, d, EL) {
+  sample(d %>% pull(paste(EL)), nspec, replace = FALSE) %>% mean(na.rm = TRUE)
 }
 
-getsim <- function(x) {
+getsim <- function(x, EL, gain) {
   tt <- pl %>% filter(aID_STAO == x) %>% 
     group_by(aID_SP, T, F, N, L) %>% 
     summarise(Occ1 = sum(Visit == 1),
               Occ2 = sum(Visit == 2),
               Occ3 = sum(Visit == 3))
-  gain <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
-  lost <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
-  tmpgain <- map_dbl(1:nsim, getsamples, nspec = sum(gain), d = tt)
-  tmplost <- map_dbl(1:nsim, getsamples, nspec = sum(lost), d = tt)
+  if(gain)  ausw <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
+  if(!gain) ausw <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
+  tmp <- map_dbl(1:nsim, getsamples, nspec = sum(ausw), d = tt, EL = EL)
   list(
-    gain = mean(tt$T[gain], na.rm = TRUE),
-    gainran = mean(tmpgain, na.rm = TRUE),
-    gainransd = sd(tmpgain, na.rm = TRUE),
-    lost = mean(tt$T[lost], na.rm = TRUE),
-    lostran = mean(tmplost, na.rm = TRUE),
-    lostransd = sd(tmplost, na.rm = TRUE))
+    nchange = sum(ausw),
+    meanreal = mean(tt[ausw, paste(EL)] %>% unlist, na.rm = TRUE),
+    mean = mean(tmp, na.rm = TRUE),
+    lower = quantile(tmp, probs = 0.025, na.rm = TRUE),
+    upper = quantile(tmp, probs = 0.975, na.rm = TRUE))
 }
 
-tt <- map(sites$aID_STAO, getsim)
 
-sites$ngain <-  tt %>% map_dbl(function(x) (x$gain - x$gainran))
-sites$nlost <-  tt %>% map_dbl(function(x) (x$lost - x$lostran))
+res <- sites %>% 
+  filter(NTOT < 4) %>% 
+  transmute(aID_STAO = aID_STAO, Sitemeasure = NTOT)
+tmp <- map(res$aID_STAO, getsim, EL = "N", gain = TRUE)
+res$meanreal <- tmp %>% map_dbl("meanreal")
+res$mean <- tmp %>% map_dbl("mean")
+res$lower <- tmp %>% map_dbl("lower")
+res$upper <- tmp %>% map_dbl("upper")
+ggplot(res, aes(x = Sitemeasure, y = meanreal)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey") +
+  geom_point(shape = 4, colour = "black", cex = 2) +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black", alpha = 0.4) +
+  stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "grey", alpha = 0.4) 
+
+res1 <- rbind(
+  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = mean, type = "Sample"),
+  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = meanreal, type = "Real"))
+mod1 <- lmer(mean ~ Sitemeasure * type + (1|aID_STAO), data = res1)
+mod2 <- lmer(mean ~ Sitemeasure + type + (1|aID_STAO), data = res1)
+anova(mod1, mod2)
+
+
+summary(glmer(SR ~ yr * NTOT + (yr|aID_STAO), data = surv, family = "poisson"))
+mod1 <- lmer(N ~ yr * NTOT + (yr|aID_STAO), data = surv)
+mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
+anova(mod1, mod2)
+
 
 t.test(sites$ngain)
 t.test(sites$nlost)
@@ -491,6 +512,8 @@ plot(sites$ngain, sites$nlost)
 tapply()
 
 ```
+
+
 
 
 # Discussion {-}

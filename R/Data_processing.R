@@ -47,7 +47,7 @@ surv <- tbl(db, "KD_Z9") %>%
                        Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
               transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
-  
+
 # Add community measures to 'surv'
 surv <- surv %>% left_join(
   tbl(db, "PL") %>% 

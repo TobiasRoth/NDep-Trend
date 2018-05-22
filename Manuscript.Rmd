@@ -143,27 +143,11 @@ tmp <- summary(lme(L ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
 res[7, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
 res[7, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
 
-# Average of functional traits
-res[ 8, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$CH, surv$Visit, mean), 2)
-tmp <- summary(lmer(CH ~ yr + (yr|aID_STAO), data = surv))$coefficients
-res[ 8, "Temporal-Trend"] <- formatC(tmp["yr", "Estimate"], format = "f", digits = 3)
-tmp <- anova(lmer(CH ~ yr + (yr|aID_STAO), data = surv), lmer(CH ~ 1 + (yr|aID_STAO), data = surv))[2, "Pr(>Chisq)"]
-res[ 8, "P-value"] <- formatC(tmp, format = "f", digits = 3)
 
-res[9, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SLA, surv$Visit, mean), 2)
-tmp <- summary(lme(SLA ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[9, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[9, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
-
-res[10, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SM, surv$Visit, mean), 2)
-tmp <- summary(lme(SM ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[10, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[10, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
- 
 print(xtable(res, align = c("l", "l", rep("r", 5)), label = "temporaltrends", caption = "Average measures of community structure for the three survey periods (in each period all sites are surveyed once). The temporal trends and p-values are based on linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution) with site-ID as random effect. Temporal-trends are given per 10 years. Linear mixed models could not be applied for beta- and gamma-diversity because measures are not available for the single sites."), include.rownames=FALSE)
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(temporaltrends)): for each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity, average Ellenberg values for temperature, nutrients, light and huminity, and average of species' canopy height, specific leaf area and seed mass did not vary much among the three sampling periods. For all measures, all p-values of the average temperal trends per site were $>0.05$ and only in the case of the average temperature value of the species the p-value was $<0.1$. Note that beta- and gamma-diversity are note available for single sites and thus mixed models to calculate the p-value could not be applied.
+The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(temporaltrends)): for each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods. For all measures, all p-values of the average temperal trends per site were $>0.05$ and only in the case of the average temperature value of the species the p-value was $<0.1$. Note that beta- and gamma-diversity are note available for single sites and thus mixed models to calculate the p-value could not be applied.
 
 ```{r modturnover}
 tt <- rbind(
@@ -179,6 +163,110 @@ mod <- glm(cbind(change, nochange) ~ period, data = tt, family = binomial)
 ```
 
 The temporal stability as inferred from the community measures were, however, in contrast to the large  observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. There is some evidence that this slight decrease in the temporal turnover from the first and second survey to the temporal turnover of the second and third survey is systematic and was not entirly caused by change (Binomial generalized linear model; effect size = `r coef(mod)[2]`; p = `r summary(mod)$coefficients["period", "Pr(>|z|)"]`).
+
+```{r diffromrandom}
+# Function to sample community and callculate CM
+getsamples <- function(s, nspec, d, EL) {
+  sample(d %>% pull(paste(EL)), nspec, replace = FALSE) %>% mean(na.rm = TRUE)
+}
+
+# Prepare data from one site and calculate mean and CrI for sample and mean for real community
+getsim <- function(x, EL, gain) {
+  tt <- pl %>% filter(aID_STAO == x) %>% 
+    group_by(aID_SP, T, F, N, L) %>% 
+    summarise(Occ1 = sum(Visit == 1),
+              Occ2 = sum(Visit == 2),
+              Occ3 = sum(Visit == 3))
+  if(gain)  ausw <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
+  if(!gain) ausw <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
+  tmp <- map_dbl(1:nsim, getsamples, nspec = sum(ausw), d = tt, EL = EL)
+  list(
+    nchange = sum(ausw),
+    meanreal = mean(tt[ausw, paste(EL)] %>% unlist, na.rm = TRUE),
+    mean = mean(tmp, na.rm = TRUE),
+    lower = quantile(tmp, probs = 0.025, na.rm = TRUE),
+    upper = quantile(tmp, probs = 0.975, na.rm = TRUE))
+}
+
+# Function to prepare the res file for plotting
+makesim <- function(EL, gain) {
+  res <- sites %>% 
+    filter(NTOT < 4) %>% 
+    transmute(aID_STAO = aID_STAO, Sitemeasure = NTOT)
+  tmp <- map(res$aID_STAO, getsim, EL = EL, gain = gain)
+  res$meanreal <- tmp %>% map_dbl("meanreal")
+  res$mean <- tmp %>% map_dbl("mean")
+  res$lower <- tmp %>% map_dbl("lower")
+  res$upper <- tmp %>% map_dbl("upper")
+  res
+}
+
+# Make calculations and plot
+tres <- makesim("N", gain = FALSE)
+txlab <- seq(0, 40, 5)
+tylab <- seq(2, 4, 0.5)
+pNloss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
+  geom_point(shape = 4, colour = "black", cex = 2) +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
+  stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "grey60", lty = 2) +
+  scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
+  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1.5, 1.5)) +
+  labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
+       title = "(A) Species losses") 
+
+tres <- makesim("N", gain = TRUE)
+txlab <- seq(0, 40, 5)
+tylab <- seq(2, 4, 0.5)
+pNgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
+  geom_point(shape = 4, colour = "black", cex = 2) +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
+  stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "grey60", lty = 2) +
+  scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
+  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1.5, 1.5)) +
+  labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
+       title = "(B) Species gains") 
+
+multiplot(pNloss, pNgain, cols = 2)
+
+
+res1 <- rbind(
+  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = mean, type = "Sample"),
+  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = meanreal, type = "Real"))
+mod1 <- lmer(mean ~ Sitemeasure * type + (1|aID_STAO), data = res1)
+mod2 <- lmer(mean ~ Sitemeasure + type + (1|aID_STAO), data = res1)
+anova(mod1, mod2)
+
+
+summary(glmer(SR ~ yr * NTOT + (yr|aID_STAO), data = surv, family = "poisson"))
+mod1 <- lmer(N ~ yr * NTOT + (yr|aID_STAO), data = surv)
+mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
+anova(mod1, mod2)
+
+
+t.test(sites$ngain)
+t.test(sites$nlost)
+
+lm(ngain ~ Inclination + Temperature + Precipitation  + NTOT, data = sites) %>% 
+  tidy
+  
+plot(sites$ngain, sites$nlost)
+
+
+tapply()
+
+```
+
+
+
+
+
+
+
+
+
+
 
 ```{r compofvarianceran}
 modcol <- summary(glmer(Occ ~ 1 + (1|aID_STAO) + (1|aID_SP), data = coldat, family = binomial))
@@ -386,134 +474,6 @@ multiplot(p1, p2, cols = 2)
 ```
 
 It thus seems that temperature is the main driver of species turnover in the first part of the study period and its importance is slightly decreasing over time and nitrogen deposition becomes relatively more important as a driver that shapes the species communities. We thus expect to see that the correlation of the mean temperature value of a community with the yearly annual temperature of the site (temperature correlation) is decreasing over the years while the correlation of the mean nutrient value of a community with the N deposition of the site (nitrogen correlation) is increasing over the years. Our results tent to be in line with this expectation (linear model: temporal trend of temperature correlation x temporal trend of nitrogen correlation = `r coef(cormod)["yr:driverTemperature"]`, p = `r  summary(cormod)$coefficients["yr:driverTemperature", "Pr(>|t|)"]`), however the change in the correlation over the study period remained week and the temperature correlation remained stronger than the nitrogen correlation over the entire study period (Left panel of Fig. \@ref(fig:figconsequences)). More important, however, was the effect on our model that we used to infer whether and how strong the spatial variation in N deposition is correlated with Nitrogen deposition. If we apply that model the estimated effect of N depositon on total species richness is increasing over the study period (right panel of \@ref(fig:figconsequences)). 
-
-
-
-
-```{r}
-# Calculate trend for all species
-gettrend <- function(s) {
-  tt <- surv %>% left_join(pl %>% filter(aID_SP == s) %>% dplyr::select(aID_KD, Occ)) %>% 
-    replace_na(list(Occ = 0))
-  trend <- NA
-  try(trend <- glmer(Occ ~ yr + (1|aID_STAO), data = tt, family = binomial) %>% 
-    tidy() %>% 
-    filter(term == "yr") %>% 
-    pull(estimate))
-trend
-}
-res <- pl %>% group_by(aID_SP, T, F, N, L) %>% 
-  summarise(Nsites = n_distinct(aID_STAO),
-            Nrecords = n())
-res$Trend <- map_dbl(res$aID_SP, gettrend)
-  
-# Is trend of species related to Ellenberg values
-gls(Trend ~ N, data = res) %>% 
-  tidy
-
-
-library("nlme")
-vf <- varExp(form=~Nrecords)
-gls(Trend ~ T, data = res %>% filter(!is.na(T)), weights=vf) %>% summary
-gls(Trend ~ F, data = res %>% filter(!is.na(F)), weights=vf) %>% summary
-gls(Trend ~ N, data = res %>% filter(!is.na(N)), weights=vf) %>% summary
-gls(Trend ~ L, data = res %>% filter(!is.na(L)), weights=vf) %>% summary
-
-cor.test(res$T, res$N)
-```
-
-
-
-```{r}
-# Borrowoing ideas from community assembly
-library(geometry)
-
-getFric <- function(x) {
-  tt <- pl %>% 
-  filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L)) %>% 
-  filter(aID_KD == x) %>% dplyr::select(T, F, N, L) 
-  geometry::convhulln(tt, "FA")$vol
-}
-
-surv$FRic <- map_dbl(surv$aID_KD, getFric)
-
-summary(lmer(FRic ~ yr + (yr|aID_STAO), data = surv))
-tapply(surv$FRic, surv$Visit, mean)
-
-ex1 <- dbFD(dummy$trait, dummy$abun)
-ex1
-```
-
---> Es gibt keine Einheitlichen Entwicklungen der Communities. Das heisst aber nicht, dass es keine systematischen Veränderungen gibt!
-
-
-
-```{r}
-# Functions 
-getsamples <- function(s, nspec, d, EL) {
-  sample(d %>% pull(paste(EL)), nspec, replace = FALSE) %>% mean(na.rm = TRUE)
-}
-
-getsim <- function(x, EL, gain) {
-  tt <- pl %>% filter(aID_STAO == x) %>% 
-    group_by(aID_SP, T, F, N, L) %>% 
-    summarise(Occ1 = sum(Visit == 1),
-              Occ2 = sum(Visit == 2),
-              Occ3 = sum(Visit == 3))
-  if(gain)  ausw <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
-  if(!gain) ausw <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
-  tmp <- map_dbl(1:nsim, getsamples, nspec = sum(ausw), d = tt, EL = EL)
-  list(
-    nchange = sum(ausw),
-    meanreal = mean(tt[ausw, paste(EL)] %>% unlist, na.rm = TRUE),
-    mean = mean(tmp, na.rm = TRUE),
-    lower = quantile(tmp, probs = 0.025, na.rm = TRUE),
-    upper = quantile(tmp, probs = 0.975, na.rm = TRUE))
-}
-
-
-res <- sites %>% 
-  filter(NTOT < 4) %>% 
-  transmute(aID_STAO = aID_STAO, Sitemeasure = NTOT)
-tmp <- map(res$aID_STAO, getsim, EL = "N", gain = TRUE)
-res$meanreal <- tmp %>% map_dbl("meanreal")
-res$mean <- tmp %>% map_dbl("mean")
-res$lower <- tmp %>% map_dbl("lower")
-res$upper <- tmp %>% map_dbl("upper")
-ggplot(res, aes(x = Sitemeasure, y = meanreal)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey") +
-  geom_point(shape = 4, colour = "black", cex = 2) +
-  stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black", alpha = 0.4) +
-  stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "grey", alpha = 0.4) 
-
-res1 <- rbind(
-  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = mean, type = "Sample"),
-  res %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = meanreal, type = "Real"))
-mod1 <- lmer(mean ~ Sitemeasure * type + (1|aID_STAO), data = res1)
-mod2 <- lmer(mean ~ Sitemeasure + type + (1|aID_STAO), data = res1)
-anova(mod1, mod2)
-
-
-summary(glmer(SR ~ yr * NTOT + (yr|aID_STAO), data = surv, family = "poisson"))
-mod1 <- lmer(N ~ yr * NTOT + (yr|aID_STAO), data = surv)
-mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
-anova(mod1, mod2)
-
-
-t.test(sites$ngain)
-t.test(sites$nlost)
-
-lm(ngain ~ Inclination + Temperature + Precipitation  + NTOT, data = sites) %>% 
-  tidy
-  
-plot(sites$ngain, sites$nlost)
-
-
-tapply()
-
-```
-
-
 
 
 # Discussion {-}

@@ -98,24 +98,28 @@ compileres <- function(EL) {
 ```
 
 # Results {-}
-```{r temporaltrends, results='asis', }
-res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Gamma-Diversity", 
-                           "Temperature value", "Huminity value", "Nutrients value", "Light value", 
-                           "Canopy height", "Specific leaf area", "Seed mass"))
-res$'Period 1' <- ""; res$'Period 2' <- ""; res$'Period 3' <- ""
-res$'Temporal-Trend' <- ""; res$'P-value' <- ""
+
+```{r communitytrends, results='asis', }
+res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Gamma-Diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
+              'Period 1' = NA,
+              'Period 2' = NA,
+              'Period 3' = NA,
+              'Temporal-Trend' = NA,
+              '2.5%' = NA,
+              '97.5%' = NA)
 
 # Alpha diversity
-res[1, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$SR, surv$Visit, mean), 2)
-tmp <- summary(glmer(SR ~ yr + (yr|aID_STAO), data = surv, family = poisson))$coefficients
-res[1, "Temporal-Trend"] <- formatC(tmp["yr", "Estimate"], format = "f", digits = 3)
-res[1, "P-value"] <- formatC(tmp["yr", "Pr(>|z|)"], format = "f", digits = 3)
+res[1, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$SR, surv$Visit, mean)
+tmp <- stan_glmer(SR ~ yr + (yr|aID_STAO), data = surv, family = poisson,
+                  cores = ncores, iter = niter)
+res[1, "Temporal-Trend"] <- fixef(tmp)["yr"]
+res[1, c('2.5%', '97.5%')] <- posterior_interval(tmp, pars = "yr")
 
 # Beta diversity
 getbeta <- function(x) {
   tmp <- simba::sim(pl %>% filter(Visit == x) %>% dplyr::select(aID_STAO, aID_SP, Occ), method = "simpson", 
-            listin = TRUE, listout = TRUE)
-  formatC(tmp$simpson, format = "f", digits = 2)
+             listin = TRUE, listout = TRUE)
+  mean(tmp$simpson)
 }
 res[2, c("Period 1", "Period 2", "Period 3")] <- lapply(1:3, getbeta)
 
@@ -144,12 +148,12 @@ res[7, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3
 res[7, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
 
 
-print(xtable(res, align = c("l", "l", rep("r", 5)), label = "temporaltrends", caption = "Average measures of community structure for the three survey periods (in each period all sites are surveyed once). The temporal trends and p-values are based on linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution) with site-ID as random effect. Temporal-trends are given per 10 years. Linear mixed models could not be applied for beta- and gamma-diversity because measures are not available for the single sites."), include.rownames=FALSE)
+print(xtable(res, align = c("l", "l", rep("r", 6)), digits = ndigits, label = "temporaltrends", caption = "Average measures of community structure for the three survey periods (in each period all sites are surveyed once). The temporal trends and p-values are based on linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution) with site-ID as random effect. Temporal-trends are given per 10 years. Linear mixed models could not be applied for beta- and gamma-diversity because measures are not available for the single sites."), include.rownames=FALSE)
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(temporaltrends)): for each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods. For all measures, all p-values of the average temperal trends per site were $>0.05$ and only in the case of the average temperature value of the species the p-value was $<0.1$. Note that beta- and gamma-diversity are note available for single sites and thus mixed models to calculate the p-value could not be applied.
+The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(communitytrends)): for each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods. For all measures, all p-values of the average temperal trends per site were $>0.05$ and only in the case of the average temperature value of the species the p-value was $<0.1$. Note that beta- and gamma-diversity are note available for single sites and thus mixed models to calculate the p-value could not be applied.
 
-```{r modturnover}
+```{r turnover}
 tt <- rbind(
   sites %>% transmute(
     change = change1, 
@@ -162,7 +166,7 @@ tt <- rbind(
 mod <- glm(cbind(change, nochange) ~ period, data = tt, family = binomial)
 ```
 
-The temporal stability as inferred from the community measures were, however, in contrast to the large  observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. There is some evidence that this slight decrease in the temporal turnover from the first and second survey to the temporal turnover of the second and third survey is systematic and was not entirly caused by change (Binomial generalized linear model; effect size = `r coef(mod)[2]`; p = `r summary(mod)$coefficients["period", "Pr(>|z|)"]`).
+The temporal stability as inferred from the community measures were, however, in contrast to the large  observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seems that the turnover from the first/second survey to the temporal turnover of the second/third survey slightly decreased (95% Credible interval of the change in turnover estimated from a Binomial generalized linear model: `r coef(mod)[2]`; p = `r summary(mod)$coefficients["period", "Pr(>|z|)"]`).
 
 ```{r diffromrandom}
 # Function to sample community and callculate CM

@@ -31,7 +31,7 @@ tmp <- tbl(db, "KD_Z9") %>%
   as.tibble() %>% 
   filter(!is.na(match(aID_STAO, sel$aID_STAO)) & !is.na(yearPl) & yearP >= 2003 & yearP <= 2017) %>% 
   dplyr::select(aID_KD, aID_STAO, yearPl) %>% 
-  left_join(tbl(db, "PL") %>% group_by(aID_KD) %>% summarise(SR = n()), copy = TRUE) %>% 
+  left_join(tbl(db, "PL") %>% group_by(aID_KD) %>% dplyr::summarise(SR = n()), copy = TRUE) %>% 
   filter(SR >= 0)
 tmp <- table(tmp$aID_STAO)
 sum(tmp != 3)
@@ -54,20 +54,21 @@ surv <- surv %>% left_join(
     filter(!Z7) %>% 
     left_join(tbl(db, "Traits_PL")) %>%
     group_by(aID_KD) %>% 
-    summarise(SR = n(),
-              SR_oligo = sum(N <= 2, na.rm = TRUE),
-              SR_eutro = sum(N >= 4, na.rm = TRUE),
-              SLA = mean(log(SLA), na.rm = TRUE),
-              CH = mean(log(CH), na.rm = TRUE),
-              SM = mean(log(SM), na.rm = TRUE),
-              SLA_sd = sd(log(SLA), na.rm = TRUE),
-              CH_sd = sd(log(CH), na.rm = TRUE),
-              SM_sd = sd(log(SM), na.rm = TRUE),
-              T = mean(T, na.rm = TRUE), 
-              F = mean(F, na.rm = TRUE),
-              N = mean(N, na.rm = TRUE),
-              L = mean(L, na.rm = TRUE),
-              MV = mean(MV, na.rm = TRUE)), copy = TRUE)
+    dplyr::summarise(
+      SR = n(),
+      SR_oligo = sum(N <= 2, na.rm = TRUE),
+      SR_eutro = sum(N >= 4, na.rm = TRUE),
+      SLA = mean(log(SLA), na.rm = TRUE),
+      CH = mean(log(CH), na.rm = TRUE),
+      SM = mean(log(SM), na.rm = TRUE),
+      SLA_sd = sd(log(SLA), na.rm = TRUE),
+      CH_sd = sd(log(CH), na.rm = TRUE),
+      SM_sd = sd(log(SM), na.rm = TRUE),
+      T = mean(T, na.rm = TRUE), 
+      F = mean(F, na.rm = TRUE),
+      N = mean(N, na.rm = TRUE),
+      L = mean(L, na.rm = TRUE),
+      MV = mean(MV, na.rm = TRUE)), copy = TRUE)
 
 #------------------------------------------------------------------------------------------------------
 # Selection plants data
@@ -128,7 +129,7 @@ pl$L <- (pl$L - 3)
 # Compile data for colonization and local survival calculations
 #------------------------------------------------------------------------------------------------------
 d <- expand.grid(aID_STAO = sites$aID_STAO, aID_SP = unique(pl$aID_SP)) %>% as.tibble() %>% 
-  left_join(pl %>% group_by(aID_SP) %>% summarise(T = min(T), F = min(F), N = min(N), L = min(L))) %>% 
+  left_join(pl %>% group_by(aID_SP) %>% dplyr::summarise(T = min(T), F = min(F), N = min(N), L = min(L))) %>% 
   left_join(pl %>% filter(yearP >= 2003 & yearP<= 2007) %>% 
               transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ1 = Occ)) %>% 
   left_join(pl %>% filter(yearP >= 2008 & yearP <= 2012) %>% 
@@ -151,7 +152,7 @@ coldat <- rbind(
               NTOT = NTOT, Inclination = Inclination,
               T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))%>% 
   filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L)) 
-coldat <- coldat %>% left_join(coldat %>% group_by(aID_SP) %>% summarise(ausw = sum(Occ)>0)) %>% 
+coldat <- coldat %>% left_join(coldat %>% group_by(aID_SP) %>% dplyr::summarise(ausw = sum(Occ)>0)) %>% 
   filter(ausw)
 
 # Prepare survival dat
@@ -175,6 +176,7 @@ siteIDs <- data.frame(
   aID_STAO = sites$aID_STAO,
   siteID = as.integer(factor(sites$aID_STAO))
   )
+
 surv$aID_STAO <- siteIDs$siteID[match(surv$aID_STAO, siteIDs$aID_STAO)]
 save(surv, file = "RData/surv.RData")
 

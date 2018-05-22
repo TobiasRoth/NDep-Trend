@@ -17,7 +17,6 @@ abstract: >
   Nitrogen (N) deposition is a major threat to biodiversity of many habitats. The recent intro- duction of cleaner technologies in Switzerland has let to reductions in the emissions of nitro- gen oxides, with affiliated decrease in N-deposition. We infered different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring.
   Species gain and losses were best explainde by differences in Ellenberg value for temperature suggesting that climate warming was the most important driver of community change in Mountain hay meadows. 
   
-  
 header-includes: >
   \usepackage{lipsum}
 bibliography: Bibliography.bib
@@ -100,75 +99,74 @@ compileres <- function(EL) {
 # Results {-}
 
 ```{r communitytrends, results='asis', }
-res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Gamma-Diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
+res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
               'Period 2' = NA,
               'Period 3' = NA,
-              'Temporal-Trend' = NA,
-              '2.5%' = NA,
-              '97.5%' = NA)
+              'Trend' = NA,
+              '5%' = NA,
+              '95%' = NA,
+              'Trend > 0' = NA)
 
 # Alpha diversity
 res[1, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$SR, surv$Visit, mean)
-tmp <- stan_glmer(SR ~ yr + (yr|aID_STAO), data = surv, family = poisson,
-                  cores = ncores, iter = niter)
-res[1, "Temporal-Trend"] <- fixef(tmp)["yr"]
-res[1, c('2.5%', '97.5%')] <- posterior_interval(tmp, pars = "yr")
+load("Modelfit/SR-trend.RData")
+res[1, "Trend"] <- fixef(mod)["yr"]
+res[1, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[1, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 # Beta diversity
 getbeta <- function(x) {
-  tmp <- simba::sim(pl %>% filter(Visit == x) %>% dplyr::select(aID_STAO, aID_SP, Occ), method = "simpson", 
-             listin = TRUE, listout = TRUE)
+  tmp <- simba::sim(pl %>% filter(Visit == x) %>% dplyr::select(aID_STAO, aID_SP, Occ), 
+                    method = "simpson", listin = TRUE, listout = TRUE)
   mean(tmp$simpson)
 }
 res[2, c("Period 1", "Period 2", "Period 3")] <- lapply(1:3, getbeta)
 
-# Gamma diversity
-res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(pl$aID_SP, pl$Visit, function(x) length(unique(x)))
-
 # Mean community index
-res[4, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$T, surv$Visit, mean), 2)
-tmp <- summary(lme(T ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[4, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[4, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$T, surv$Visit, mean)
+load("Modelfit/T-trend.RData")
+res[3, "Trend"] <- fixef(mod)["yr"]
+res[3, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[3, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-res[5, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$F, surv$Visit, mean), 2)
-tmp <- summary(lme(F ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[5, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[5, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+res[4, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$F, surv$Visit, mean), 2)
+load("Modelfit/F-trend.RData")
+res[4, "Trend"] <- fixef(mod)["yr"]
+res[4, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[4, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-res[6, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$N, surv$Visit, mean), 2)
-tmp <- summary(lme(N ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[6, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[6, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+res[5, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$N, surv$Visit, mean), 2)
+load("Modelfit/N-trend.RData")
+res[5, "Trend"] <- fixef(mod)["yr"]
+res[5, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[5, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-res[7, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$L, surv$Visit, mean), 2)
-tmp <- summary(lme(L ~ yr, random = ~ yr|aID_STAO, data = surv))$tTable
-res[7, "Temporal-Trend"] <- formatC(tmp["yr", "Value"], format = "f", digits = 3)
-res[7, "P-value"] <- formatC(tmp["yr", "p-value"], format = "f", digits = 3)
+res[6, c("Period 1", "Period 2", "Period 3")] <- round(tapply(surv$L, surv$Visit, mean), 2)
+load("Modelfit/L-trend.RData")
+res[6, "Trend"] <- fixef(mod)["yr"]
+res[6, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[6, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-
-print(xtable(res, align = c("l", "l", rep("r", 6)), digits = ndigits, label = "temporaltrends", caption = "Average measures of community structure for the three survey periods (in each period all sites are surveyed once). The temporal trends and p-values are based on linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution) with site-ID as random effect. Temporal-trends are given per 10 years. Linear mixed models could not be applied for beta- and gamma-diversity because measures are not available for the single sites."), include.rownames=FALSE)
+print(xtable(res, align = c("l", "l", rep("r", 7)), digits = ndigits, caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5% and 95% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is <0 is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites."), include.rownames=FALSE)
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(communitytrends)): for each of the three 5-year survey periods the averages of alpha-, beta- and gamma-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods. For all measures, all p-values of the average temperal trends per site were $>0.05$ and only in the case of the average temperature value of the species the p-value was $<0.1$. Note that beta- and gamma-diversity are note available for single sites and thus mixed models to calculate the p-value could not be applied.
+The different measures of total community structure suggested that plant communities in mountain hay meadows were stable between 2003 and 2017 (Table \@ref(communitytrends)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero and the probability of a trend $>0$ was rather close to 0.5. 
 
 ```{r turnover}
-tt <- rbind(
-  sites %>% transmute(
-    change = change1, 
-    nochange = nochange1,
-    period = 1),
-  sites %>% transmute(
-    change = change2, 
-    nochange = nochange2,
-    period = 2))
-mod <- glm(cbind(change, nochange) ~ period, data = tt, family = binomial)
+load("Modelfit/turnover-trend.RData")
+tmp <-  posterior_interval(mod, pars = "period")
+CrI <- paste0(round(tmp[1,1], ndigits), " - ", round(tmp[1,2], ndigits))
 ```
 
-The temporal stability as inferred from the community measures were, however, in contrast to the large  observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seems that the turnover from the first/second survey to the temporal turnover of the second/third survey slightly decreased (95% Credible interval of the change in turnover estimated from a Binomial generalized linear model: `r coef(mod)[2]`; p = `r summary(mod)$coefficients["period", "Pr(>|z|)"]`).
+The temporal stability as inferred from the community measures were, however, in contrast to the large  observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seems that the turnover from the first/second survey to the temporal turnover of the second/third survey moderately decreased (90% Credible interval of the change in turnover estimated from a Binomial generalized linear model: `r CrI`).
+
+
 
 ```{r diffromrandom}
+# Number of simulations
+nsim <- 100
+
 # Function to sample community and callculate CM
 getsamples <- function(s, nspec, d, EL) {
   sample(d %>% pull(paste(EL)), nspec, replace = FALSE) %>% mean(na.rm = TRUE)
@@ -178,9 +176,9 @@ getsamples <- function(s, nspec, d, EL) {
 getsim <- function(x, EL, gain) {
   tt <- pl %>% filter(aID_STAO == x) %>% 
     group_by(aID_SP, T, F, N, L) %>% 
-    summarise(Occ1 = sum(Visit == 1),
-              Occ2 = sum(Visit == 2),
-              Occ3 = sum(Visit == 3))
+    dplyr::summarise(Occ1 = sum(Visit == 1),
+                     Occ2 = sum(Visit == 2),
+                     Occ3 = sum(Visit == 3))
   if(gain)  ausw <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
   if(!gain) ausw <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
   tmp <- map_dbl(1:nsim, getsamples, nspec = sum(ausw), d = tt, EL = EL)
@@ -205,8 +203,24 @@ makesim <- function(EL, gain) {
   res
 }
 
-# Make calculations and plot
-tres <- makesim("N", gain = FALSE)
+# Make calculations and plot for T value
+tres <- makesim(EL = "T", gain = FALSE)
+
+
+tres <- makesim("N", gain = TRUE)
+txlab <- seq(0, 40, 5)
+tylab <- seq(2, 4, 0.5)
+pNgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
+  geom_point(shape = 4, colour = "black", cex = 2) +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
+  stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "grey60", lty = 2) +
+  scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
+  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1.5, 1.5)) +
+  labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
+       title = "(B) Species gains") 
+# Make calculations and plot for N value
+tres <- makesim(EL = "N", gain = FALSE)
 txlab <- seq(0, 40, 5)
 tylab <- seq(2, 4, 0.5)
 pNloss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -232,7 +246,8 @@ pNgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
        title = "(B) Species gains") 
 
-multiplot(pNloss, pNgain, cols = 2)
+
+
 
 
 res1 <- rbind(
@@ -249,21 +264,13 @@ mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
 anova(mod1, mod2)
 
 
-t.test(sites$ngain)
-t.test(sites$nlost)
-
-lm(ngain ~ Inclination + Temperature + Precipitation  + NTOT, data = sites) %>% 
-  tidy
-  
-plot(sites$ngain, sites$nlost)
-
-
-tapply()
-
 ```
 
 
 
+```{r, fig.cap="Noch einfügen."}
+multiplot(pNloss, pNgain, cols = 2)
+```
 
 
 

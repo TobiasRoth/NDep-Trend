@@ -18,6 +18,7 @@ library(tidyverse)
 library(broom)
 library(rstanarm)
 library(simba)
+library(Rmisc)
 
 #------------------------------------------------------------------------------------------------------
 # Load data
@@ -44,7 +45,7 @@ inline_hook <- function(x) {
 }
 knit_hooks$set(inline = inline_hook)
 
-# GGplot settings
+# ggplot settings
 theme_set(theme_classic() + 
             theme(legend.position="bottom") + 
             theme(legend.title = element_blank()))
@@ -55,10 +56,6 @@ tcol <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # Settings for xtable()
 options(xtable.comment = FALSE)
 ndigits = 2
-
-# Settings for rstanarm
-niter = 500
-ncores = 4
 
 
 

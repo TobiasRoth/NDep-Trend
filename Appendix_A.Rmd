@@ -1,5 +1,5 @@
 ---
-title: "Appendix A: Random community change"
+title: "Appendix A: Comparision of lost/gained species to randomly selected species"
 toc: no
 output:
   bookdown::pdf_document2
@@ -9,54 +9,55 @@ output:
 source("R/Settings.R")
 ```
 
-# Introduction and mehtods {-}
-Add text to explain the ideas and methods.
+# Methods {-}
+```{r functions}
+# Number of simulations
+nsim <- 100
 
-Auch noch auf Interaktion texten:
-```{r}
-library(arm)
+# Function to sample community and callculate CM
+getsamples <- function(s, nspec, d, EL) {
+  sample(d %>% pull(paste(EL)), nspec, replace = FALSE) %>% mean(na.rm = TRUE)
+}
 
-res1 <- rbind(
-  tres %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = mean, type = "Sample"),
-  tres %>% transmute(aID_STAO = aID_STAO, Sitemeasure = Sitemeasure, mean = meanreal, type = "Real"))
-mod1 <- lmer(mean ~ Sitemeasure * type + (1|aID_STAO), data = res1)
-mod2 <- lmer(mean ~ Sitemeasure + type + (1|aID_STAO), data = res1)
-anova(mod1, mod2)
+# Prepare data from one site and calculate mean and CrI for sample and mean for real community
+getsim <- function(x, EL, gain) {
+  tt <- pl %>% filter(aID_STAO == x) %>% 
+    group_by(aID_SP, T, F, N, L) %>% 
+    dplyr::summarise(Occ1 = sum(Visit == 1),
+                     Occ2 = sum(Visit == 2),
+                     Occ3 = sum(Visit == 3))
+  if(gain)  ausw <- (tt$Occ1 == 0 & tt$Occ2 == 1) | (tt$Occ2 == 0 & tt$Occ3 == 1)
+  if(!gain) ausw <- (tt$Occ1 == 1 & tt$Occ2 == 0) | (tt$Occ2 == 1 & tt$Occ3 == 0)
+  tmp <- map_dbl(1:nsim, getsamples, nspec = sum(ausw), d = tt, EL = EL)
+  list(
+    nchange = sum(ausw),
+    meanreal = mean(tt[ausw, paste(EL)] %>% unlist, na.rm = TRUE),
+    mean = mean(tmp, na.rm = TRUE),
+    lower = quantile(tmp, probs = 0.05, na.rm = TRUE),
+    upper = quantile(tmp, probs = 0.95, na.rm = TRUE))
+}
 
-
-summary(glmer(SR ~ yr * NTOT + (yr|aID_STAO), data = surv, family = "poisson"))
-mod1 <- lmer(N ~ yr * NTOT + (yr|aID_STAO), data = surv)
-mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
-anova(mod1, mod2)
-
-
-los <- tibble()
-gain <- tibble()
-T <- tibble()
-
-library(arm)
-los$ef <- los$meanreal - los$mean
-summary(lmer(ef ~ EL * Sitemeasure + (1|aID_STAO), data = los))
-
-gain$ef <- gain$meanreal - gain$mean
-summary(lmer(ef ~ EL * Sitemeasure + (1|aID_STAO), data = gain))
-
-T$ef <- T$meanreal - T$mean
-mod1 <- lmer(ef ~ type + (1|aID_STAO), data = T)
-mod2 <- lmer(ef ~ 1 + (1|aID_STAO), data = T)
-anova(mod1, mod2)
+# Function to prepare the res file for plotting
+makesim <- function(EL, gain, sitem) {
+  res <- tibble(aID_STAO = sites$aID_STAO, Sitemeasure = pull(sites[, paste(sitem)]))
+  tmp <- map(res$aID_STAO, getsim, EL = EL, gain = gain)
+  res$gain = gain
+  res$EL = paste(EL)
+  res$meanreal <- tmp %>% map_dbl("meanreal")
+  res$mean <- tmp %>% map_dbl("mean")
+  res$lower <- tmp %>% map_dbl("lower")
+  res$upper <- tmp %>% map_dbl("upper")
+  res
+}
 ```
-
+Temporal turnover is caused by species that are lost between surveys (or overseen in the second survey) and gained between surveys (or overseen during the first survey). It is likely that different drivers such as Nitrogen deposition or climate warming would cause differnt species to colonize or disappear from sites. Also methodological issus such as imperfect detection is likely to result in species with particular characteristics that are overseen in one survey and thus result apparend species gains or losses. We here borrowed ideas from functional ecology in order to try to disentangle the potential drivers of species gains and losses: We compared the characteristics of the species that newly colonized or the species that disappeared from a site with the same amount of species that were randomly selected from all the species that were observed at the site (i.e. the species assemblage). Instead of the functional traits that are traditinally used in functional ecology such as species height, we used the Elleberg values that we though could best reflect the main drivers that are likely to cause shifts in mountain hay plant communities. This were the Ellenberg values for temperature (is likely to respond to climate warming), humidity (is likely to respond to changes in precipitation), nutrients (is likely to change in response to Nitrogen deposition and land-use intensity) and light (is likely to change in response to land-use intensity).  
 
 # Results {-}
 
 ```{r Tplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{temperature} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg T value
 tres <- makesim(EL = "T", gain = FALSE, sitem = "Temperature")
-
-tres$EL <- "T"; los <- rbind(los, tres)
-tres$type <- "loss"; T <- rbind(T, tres)
-
+save(tres, file = "Communitysim/lossT.RData")
 txlab <- seq(0, 100, 10)
 tylab <- seq(1, 5, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -69,16 +70,14 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   labs(x = "Annual mean temperature", y = "Ellenberg temperature value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim(EL = "T", gain = TRUE, sitem = "Temperature")
-tres$EL <- "T"; gain <- rbind(gain, tres)
-tres$type <- "gain"; T <- rbind(T, tres)
-
+save(tres, file = "Communitysim/gainT.RData")
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 50) / 10, labels = txlab/10, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1, 1)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2, 4)) +
   labs(x = "Annual mean temperature", y = "Ellenberg temperature value\n(community mean)",
        title = "(B) Species gains") 
 multiplot(ploss, pgain, cols = 2)
@@ -87,6 +86,7 @@ multiplot(ploss, pgain, cols = 2)
 ```{r Fplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{humidity} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg F value
 tres <- makesim(EL = "F", gain = FALSE, sitem = "Precipitation")
+save(tres, file = "Communitysim/lossF.RData")
 txlab <- seq(800, 2000, 200)
 tylab <- seq(1, 4, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -95,17 +95,18 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 1000) / 200, labels = txlab, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1, 1)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2, 4)) +
   labs(x = "Annual mean precipitation", y = "Ellenberg humidity value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim(EL = "F", gain = TRUE, sitem = "Precipitation")
+save(tres, file = "Communitysim/gainF.RData")
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 1000) / 200, labels = txlab, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1, 1)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2, 4)) +
   labs(x = "Annual mean precipitation", y = "Ellenberg humidity value\n(community mean)",
        title = "(B) Species gains") 
 multiplot(ploss, pgain, cols = 2)
@@ -114,7 +115,7 @@ multiplot(ploss, pgain, cols = 2)
 ```{r Nplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{nutrients} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg N value
 tres <- makesim(EL = "N", gain = FALSE, sitem = "NTOT")
-tres$EL <- "N"; los <- rbind(los, tres)
+save(tres, file = "Communitysim/lossN.RData")
 txlab <- seq(0, 40, 5)
 tylab <- seq(1, 4, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -123,11 +124,11 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-1.2, 1)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(1.8, 4)) +
   labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim("N", gain = TRUE, sitem = "NTOT")
-tres$EL <- "N"; gain <- rbind(gain, tres)
+save(tres, file = "Communitysim/gainN.RData")
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +
@@ -143,6 +144,7 @@ multiplot(ploss, pgain, cols = 2)
 ```{r Lplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{light} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg N value
 tres <- makesim(EL = "L", gain = FALSE, sitem = "Inclination")
+save(tres, file = "Communitysim/lossL.RData")
 txlab <- seq(0, 60, 10)
 tylab <- seq(1, 5, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -151,17 +153,18 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-0.5, 1.5)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2.5, 4.5)) +
   labs(x = "Inclination", y = "Ellenberg light value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim("L", gain = TRUE, sitem = "Inclination")
+save(tres, file = "Communitysim/gainL.RData")
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +
   stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE, col = "black") +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 10) / 10, labels = txlab, limits = c(-1, NA)) +
-  scale_y_continuous(breaks = (tylab - 3), labels = tylab, limits = c(-0.5, 1.5)) +
+  scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2.5, 4.5)) +
   labs(x = "Inclination", y = "Ellenberg light value\n(community mean)",
        title = "(B) Species gains") 
 multiplot(ploss, pgain, cols = 2)

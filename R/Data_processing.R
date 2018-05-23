@@ -120,11 +120,6 @@ sites$Precipitation <- (sites$Precipitation - 1000) / 200
 sites$NTOT <- (sites$NTOT - 10) / 10
 sites$Inclination <- (sites$Inclination - 10) / 10
 
-pl$T <- (pl$T - 3)
-pl$F <- (pl$F - 3)
-pl$N <- (pl$N - 3)
-pl$L <- (pl$L - 3)
-
 #------------------------------------------------------------------------------------------------------
 # Compile data for colonization and local survival calculations
 #------------------------------------------------------------------------------------------------------

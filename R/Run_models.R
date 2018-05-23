@@ -11,13 +11,8 @@ rm(list=ls(all=TRUE))
 #------------------------------------------------------------------------------------------------------
 # Settings
 #------------------------------------------------------------------------------------------------------
-# Libraries
-library(tidyverse)
-library(rstanarm)
-
-# Load data
-load("RData/surv.RData")
-load("RData/sites.RData")
+# Source overall settings
+source("R/Settings.R")
 
 # Settings for rstanarm
 ncores = 4
@@ -50,12 +45,29 @@ save(mod, file = "Modelfit/L-trend.RData")
 #------------------------------------------------------------------------------------------------------
 tt <- rbind(
   sites %>% transmute(
+    aID_STAO = aID_STAO,
     change = change1, 
     nochange = nochange1,
+    Temperature = Temperature,
+    Precipitation = Precipitation,
+    NTOT = NTOT,
+    Inclination = Inclination, 
     period = 1),
   sites %>% transmute(
+    aID_STAO = aID_STAO,
     change = change2, 
     nochange = nochange2,
+    Temperature = Temperature,
+    Precipitation = Precipitation,
+    NTOT = NTOT,
+    Inclination = Inclination, 
     period = 2))
-mod <- stan_glm(cbind(change, nochange) ~ period, data = tt, family = binomial, cores = ncores)
+mod <- stan_glmer(cbind(change, nochange) ~ period + Temperature + Precipitation + NTOT + Inclination + (1|aID_STAO), 
+                data = tt, family = binomial, cores = ncores)
 save(mod, file = "Modelfit/turnover-trend.RData")
+
+#------------------------------------------------------------------------------------------------------
+# 
+#------------------------------------------------------------------------------------------------------
+mod <- stan_glmer(Occ ~ Temperature * T + (1|aID_SP) + (1|aID_STAO), data = coldat, family = binomial, cores = ncores)
+

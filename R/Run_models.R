@@ -70,4 +70,9 @@ save(mod, file = "Modelfit/turnover-trend.RData")
 # 
 #------------------------------------------------------------------------------------------------------
 mod <- stan_glmer(Occ ~ Temperature * T + (1|aID_SP) + (1|aID_STAO), data = coldat, family = binomial, cores = ncores)
+save(mod, file = "Modelfit/colonization-T.RData")
+
+mod <- stan_glmer(Occ ~ Temperature * T + (1|aID_SP) + (1|aID_STAO), data = survdat, family = binomial, cores = ncores)
+save(mod, file = "Modelfit/localsurvival-T.RData")
+
 

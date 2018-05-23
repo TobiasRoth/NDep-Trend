@@ -28,6 +28,23 @@ summary(glmer(SR ~ yr * NTOT + (yr|aID_STAO), data = surv, family = "poisson"))
 mod1 <- lmer(N ~ yr * NTOT + (yr|aID_STAO), data = surv)
 mod2 <- lmer(N ~ yr + NTOT + (yr|aID_STAO), data = surv)
 anova(mod1, mod2)
+
+
+los <- tibble()
+gain <- tibble()
+T <- tibble()
+
+library(arm)
+los$ef <- los$meanreal - los$mean
+summary(lmer(ef ~ EL * Sitemeasure + (1|aID_STAO), data = los))
+
+gain$ef <- gain$meanreal - gain$mean
+summary(lmer(ef ~ EL * Sitemeasure + (1|aID_STAO), data = gain))
+
+T$ef <- T$meanreal - T$mean
+mod1 <- lmer(ef ~ type + (1|aID_STAO), data = T)
+mod2 <- lmer(ef ~ 1 + (1|aID_STAO), data = T)
+anova(mod1, mod2)
 ```
 
 
@@ -36,6 +53,10 @@ anova(mod1, mod2)
 ```{r Tplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{temperature} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg T value
 tres <- makesim(EL = "T", gain = FALSE, sitem = "Temperature")
+
+tres$EL <- "T"; los <- rbind(los, tres)
+tres$type <- "loss"; T <- rbind(T, tres)
+
 txlab <- seq(0, 100, 10)
 tylab <- seq(1, 5, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -48,6 +69,9 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   labs(x = "Annual mean temperature", y = "Ellenberg temperature value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim(EL = "T", gain = TRUE, sitem = "Temperature")
+tres$EL <- "T"; gain <- rbind(gain, tres)
+tres$type <- "gain"; T <- rbind(T, tres)
+
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +
@@ -90,6 +114,7 @@ multiplot(ploss, pgain, cols = 2)
 ```{r Nplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{nutrients} of lost (A) and newly appearing (B) species compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg N value
 tres <- makesim(EL = "N", gain = FALSE, sitem = "NTOT")
+tres$EL <- "N"; los <- rbind(los, tres)
 txlab <- seq(0, 40, 5)
 tylab <- seq(1, 4, 0.5)
 ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
@@ -102,6 +127,7 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   labs(x = "Nitrogen deposition", y = "Ellenberg nutrient value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim("N", gain = TRUE, sitem = "NTOT")
+tres$EL <- "N"; gain <- rbind(gain, tres)
 pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), lwd = 0.5, colour = "grey80") +
   geom_point(shape = 4, colour = "black", cex = 2) +

@@ -46,7 +46,7 @@ surv <- tbl(db, "KD_Z9") %>%
               transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
                        Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
+              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010_Wiesen), copy = TRUE)
 
 # Add community measures to 'surv'
 surv <- surv %>% left_join(
@@ -93,7 +93,7 @@ sites <- data.frame(aID_STAO = as.integer(sel)) %>%
               transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
                             Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
   left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010b), copy = TRUE)
+              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010_Wiesen), copy = TRUE)
 
 for(i in 1:nrow(sites)) {
   tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)

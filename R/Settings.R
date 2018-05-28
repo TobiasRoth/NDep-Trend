@@ -13,7 +13,7 @@ rm(list=ls(all=TRUE))
 #------------------------------------------------------------------------------------------------------
 library(knitr)
 library(kableExtra)
-library(xtable)
+# library(xtable)
 library(tidyverse)
 library(broom)
 library(rstanarm)
@@ -53,9 +53,6 @@ pd <- position_dodge(0.2)
 tcol <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", 
           "#D55E00", "#CC79A7")
 
-# Settings for xtable()
-options(xtable.comment = FALSE)
-ndigits = 2
 
 
 

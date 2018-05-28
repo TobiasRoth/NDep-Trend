@@ -98,7 +98,9 @@ compileres <- function(EL) {
 
 # Results {-}
 
-```{r communitytrends, results='asis', }
+
+
+```{r communitytrendscalc}
 res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
               'Period 2' = NA,
@@ -106,14 +108,14 @@ res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature val
               'Trend' = NA,
               '5%' = NA,
               '95%' = NA,
-              'Trend > 0' = NA)
+              'Prob. for Trend' = NA)
 
 # Alpha diversity
 res[1, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$SR, surv$Visit, mean)
 load("Modelfit/SR-trend.RData")
 res[1, "Trend"] <- fixef(mod)["yr"]
 res[1, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[1, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
+res[1, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 # Beta diversity
 getbeta <- function(x) {
@@ -128,271 +130,98 @@ res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$T, surv$Visit, mean
 load("Modelfit/T-trend.RData")
 res[3, "Trend"] <- fixef(mod)["yr"]
 res[3, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[3, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
+res[3, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 res[4, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$F, surv$Visit, mean)
 load("Modelfit/F-trend.RData")
 res[4, "Trend"] <- fixef(mod)["yr"]
 res[4, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[4, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
+res[4, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 res[5, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$N, surv$Visit, mean)
 load("Modelfit/N-trend.RData")
 res[5, "Trend"] <- fixef(mod)["yr"]
 res[5, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[5, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
+res[5, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 res[6, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$L, surv$Visit, mean)
 load("Modelfit/L-trend.RData")
 res[6, "Trend"] <- fixef(mod)["yr"]
 res[6, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[6, 'Trend > 0'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
-
-print(xtable(res, align = c("l", "l", rep("r", 7)), digits = ndigits, caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5% and 95% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is <0 is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites."), include.rownames=FALSE)
+res[6, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a consistent increase or decrease over time (Table \@ref(communitytrends)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, nutrients, light and huminity did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability for an increase: `r res[res$Measures == "Temperature value", "Trend > 0"]`), followed by the community mean of the Ellenberg light value (probaility for a decrease: `r 1 - res[res$Measures == "Light value", "Trend > 0"]`) and it was least likely for the alpha-diversity (probaility for an increase: `r res[res$Measures == "Alpha-diversity", "Trend > 0"]`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res[res$Measures == "Nutrients value", "Trend > 0"]`. 
+```{r communitytrends, echo=FALSE}
+options(knitr.kable.NA = '')
+kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.")
+```
 
+The different measures of total community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a consistent increase or decrease over time (Table \@ref(tab:communitytrends)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, huminity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability for an increase: `r 
+res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the Ellenberg light value (probaility for a decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`) and it was least likely for the alpha-diversity (probability for an increase: `r res %>% filter(Measures == "Alpha-diversity") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrients value") %>% pull("Prob. for Trend")`. 
 
-### Site perspecitve
 ```{r turnover}
 # Load Binomial-GLMM for turnover
 load("Modelfit/turnover-trend.RData")
 
-# Calculate the probability of change
-probchange <- as.data.frame(mod, pars = c("Temperature", "Precipitation", "NTOT", "Inclination")) %>% 
-  apply(2, function(x) mean(x > 0))
-decreasing <- fixef(mod)[c("Temperature", "Precipitation", "NTOT", "Inclination")] < 0
-probchange[decreasing] <-  1 - probchange[decreasing] 
+# Compile res for table
+res <- tibble()
+tparams <- c("Temperature", "Precipitation", "NTOT", "Inclination")
+res <- tibble(
+  Gradient = c("Annual mean temperature", "Annual mean precipitation", "Nitrogen deposition", "Inclination"),
+  Estimate = fixef(mod)[tparams],
+  `5%` = posterior_interval(mod, pars = tparams)[,1],
+  `95%` = posterior_interval(mod, pars = tparams)[,2])
 
 # 90% CrI for period effect
 tmp <-  posterior_interval(mod, pars = "period")
-CrI <- paste0(round(tmp[1,1], ndigits), " - ", round(tmp[1,2], ndigits))
-
-```
-The temporal stability as inferred from the community measures were, however, in contrast to a rather large observed temporal turnover of recorded species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seems that the turnover from the first/second survey to the turnover of the second/third survey moderately decreased (90% Credible interval of the change in turnover estimated from the Binomial generalized linear mixed model that also contained the site variables: `r CrI`).  
-
-
-### Species perspective
-```{r}
-# Get posteriors from all single species trend models
-filenames <- list.files("SpeciesTrends", full.names = TRUE)
-aID_SP <- str_split(list.files("SpeciesTrends"), "\\.") %>% map(1) %>% unlist
-load(filenames[1])
-posttrend <- array(NA, dim = c(length(trend), length(aID_SP)))
-for(i in 1:length(filenames)){
-  load(filenames[i])
-  posttrend[, i] <- trend
-}
-
-# Get list of species for which trend estimates are available
-spec <- pl %>% group_by(aID_SP, T, F, N, L) %>%
-  dplyr::summarise(Nsites = n_distinct(aID_STAO),
-                   Nrecords = n())
-spec <- spec[!is.na(match(spec$aID_SP, aID_SP)), ]
-
-# Function to calculate effect of Ellenberg values on trend
-trendef <- function(x) {
-  spec$Trend <- posttrend[x,]
-  coef(lm(Trend ~ T + F + N + L, data = spec))
-}
-
-
-
-spec$Trend <- apply(posttrend, 2, median)
-spec$TrendSD <- apply(posttrend, 2, sd)
-
-summary(lm(Trend ~ T + F + N + L, data = spec, weights = 1/TrendSD))
-
-library("nlme")		
-vf <- varExp(form= ~ 1/TrendSD)		
-gls(Trend ~ T + F + N + L, data = spec %>% filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L)), weights=vf) %>% summary
-
-
-
-
-
-
-# Calculate for all samples of the posterior distribution
-tt <- map(1:1000, trendef)
-map_dbl(tt, "T") %>% quantile(probs = c(0.5, 0.05, 0.95))
-map_dbl(tt, "F") %>% quantile(probs = c(0.5, 0.05, 0.95))
-map_dbl(tt, "N") %>% quantile(probs = c(0.5, 0.05, 0.95))
-map_dbl(tt, "L") %>% quantile(probs = c(0.5, 0.05, 0.95))
-
-
-# Überlebenswahrscheinlichkeit ist grösser
-glm(Occ ~ Temperature + Precipitation + NTOT + Inclination, data = survdat, family = binomial) %>% summary
-
-# Einwanderwahrscheinlichkeit ist grösser
-glm(Occ ~ Temperature + Precipitation + NTOT + Inclination, data = coldat, family = binomial) %>% summary
-
-
-
-
-
-
-cbind(
-survdat %>% group_by(T) %>% 
-  dplyr::summarise(
-    Anz_Ausgestroben = sum(Occ == 0)),
-coldat %>% group_by(T) %>% 
-  dplyr::summarise(
-    N = n(),
-    surv = mean(Occ)))
-
-
-
-plot(tt$surv)
-
-table(survdat$Period)
-
-
-
-
-
-
+CrI <- paste0(round(tmp[1,1], 2), " - ", round(tmp[1,2], 2))
 ```
 
---> Temperature and N have an effect on how species generally react.
-
-
-
-
-
-Temporal turnover could be high due to random processes including 
-
-Spatial turnover will be high if the probability a site is colonized by a species is high (i.e. high colonization probability) and/or if the probability that species survives at a site between two time points is low (i.e. low local survival). We found that the variation in local survival and colonization probability was largely due to differences between species and only to a lesser extend to the differences between locations: while the variance of the species random effect in a binomial linear mixed model for local survival was about `r getratio(unlist(modls$varcor))` times larger than the variance of the sampling site random effect, in the model for colonization the variance among species was even `r getratio(unlist(modcol$varcor))` times bigger than the variance among sites. 
-
- Spatial turnover will be high if the probability a site is colonized by a species is high (i.e. high colonization probability) and/or if the probability that species survives at a site between two time points is low (i.e. low local survival). We found that the variation in local survival and colonization probability was largely due to differences between species and only to a lesser extend to the differences between locations: while the variance of the species random effect in a binomial linear mixed model for local survival was about `r getratio(unlist(modls$varcor))` times larger than the variance of the sampling site random effect, in the model for colonization the variance among species was even `r getratio(unlist(modcol$varcor))` times bigger than the variance among sites. 
- 
- We inferred if we could explain differences in colonization and local survival with Ellenberg species values for temperature, humidity, nutrient or light (Table \@ref(tab:resdifeffects)). We found that both colonization probability and local survival probability was best explained by a model containing an interaction between species temperature and the average annual temperature of a site:  highest colonization probability and local survival were found  for the species with an Ellenberg value for Temperature that corresponded to the annual average temperature of the site (Fig. \@ref(fig:Teff)).. While the colonization and local survival probability of cold living species (Ellenberg T = 2) declindes along the temperature gradient, the colonization and local survival probability of warm living species (Ellenberg T = 4) increases along the temperature gradient (Fig. \@ref(fig:Teff)).
- 
-The second best model contained an interaction between species Ellenberg value for nutrient availability and the average annual N deposition rate of a site (Table \@ref(tab:resdifeffects)): the highest colonization probability and local survival were performed by species with an Ellenberg value for nutrient availability that corresponded to the annual N deposition rate of the site. While the colonization and local survival probability of oligotrophic species (Ellenberg N = 2) declindes along the N deposition gradient, the colonization and local survival probability of eutrophic species (N = 4) increases along the N deposition gradient (Fig. \@ref(fig:Neff)).
-
-
-```{r Neff, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models."}
-X <- 0:50
-Xsd <- (X - 10) / 10
-
-# Colonization
-mod <- glmer(Occ ~ NTOT * N + (1|aID_SP) + (1|aID_STAO), data = coldat, family = binomial)
-simdat <- arm::sim(mod, nsim)@fixef
-post <- map(1:nsim, getposterior)
-res <- rbind(compileres("EL = 2"), compileres("EL = 4"))
-p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
-  geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
-  geom_line() +
-    labs(title = "(a) Colonization", 
-         y = "Colonization probability", 
-         x = "Nitrogen deposition")
-
-# Local survival
-mod <- glmer(Occ ~ NTOT * N + (1|aID_SP) + (1|aID_STAO), data = survdat, family = binomial)
-simdat <- arm::sim(mod, nsim)@fixef
-post <- map(1:nsim, getposterior)
-res <- rbind(compileres("EL = 2"), compileres("EL = 4"))
-p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
-  geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
-  geom_line() +
-    labs(title = "(b) Local survival", 
-         y = "Local survival probability", 
-         x = "Nitrogen deposition")
-multiplot(p1, p2, cols = 2)
+```{r turnovertab, echo=FALSE}
+options(knitr.kable.NA = '')
+kable(res, align = c("l", rep("r", 3)), digits = 2,  booktabs = T, col.names = c("Gradient", "Estimate", "5%", "95%"), caption = "Change of species turnover along the four gradients. The slopes along the gradients (estimate) are given as the change per 10 years of the logit-probability of species that differed between two surveys. Estimates and the 5\\% and 95\\% quantiles of the marginal posterior distribution obtained from a Binomial-GLMM with the proportion of species that differed between two surveys as dependent variable and the site gradients and period as predictors and site-ID as random effect.")
 ```
 
-```{r periodeffect}
-# Temperature driven model
-modTcol <- glmer(Occ ~ factor(Period) * Temperature * T + (1|aID_SP) + (1|aID_STAO),
-               data = coldat, family = binomial)
-modTls <- glmer(Occ ~ factor(Period) * Temperature * T + (1|aID_SP) + (1|aID_STAO),
-               data = survdat, family = binomial)
+This temporal stability as inferred from the community measures was, however, in contrast to a rather large observed temporal turnover of species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seemed that the turnover from the first/second survey to the turnover of the second/third survey moderately decreased (90% Credible interval of the change in turnover estimated from the Binomial generalized linear mixed model that also contained site variables: `r CrI`). Variation in species turnover was largest along the Nitrogen deposition gradient with highest species turnover at sites with low Nitrogen depostion \@ref(tab:turnovertab). The other three gradients were less inportant to explain the variation in species turnover among sites.
 
-# Nitrogen driven model
-modNcol <- glmer(Occ ~ factor(Period) * NTOT * N + (1|aID_SP) + (1|aID_STAO),
-               data = coldat, family = binomial)
-modNls <- glmer(Occ ~ factor(Period) * NTOT * N + (1|aID_SP) + (1|aID_STAO),
-               data = survdat, family = binomial)
+```{r difffromrandom}
+getres <- function(param, gradient, file) {
+  tt <- tibble()
+  load(paste0("Communitysim/", file))
+  tres$StandEf <- tres$meanreal - tres$mean
+  mod <- stan_glm(StandEf ~ Sitemeasure, data = tres , family = gaussian(), cores = 4)
+  tt[1, "Ellenberg value"] <- param
+  tt[1, "Gradient"] <- gradient
+  tt[1, "Estimate"] <- coef(mod)[1]
+  tmp <- posterior_interval(mod, pars = "(Intercept)")[1,] %>% as.vector()
+  tt[1, "5%"] <- tmp[1] 
+  tt[1, "90%"] <- tmp[2] 
+  tt[1, "Estimate_Slope"] <- coef(mod)[2]
+  tmp <- posterior_interval(mod, pars = "Sitemeasure")[1,] %>% as.vector()
+  tt[1, "5%_Slope"] <- tmp[1] 
+  tt[1, "90%_Slope"] <- tmp[2] 
+  tt
+}
+
+res <- getres("Temperature", "Annual mean temperature", "lossT.RData")
+res <- rbind(res,  z <- getres("Humidity", "Annual mean precipitation", "lossF.RData"))
+res <- rbind(res,  getres("Nutrients", "Nitrogen deposition", "lossN.RData"))
+res <- rbind(res,  getres("Light", "Inclination", "lossL.RData"))
+res <- rbind(res, getres("Temperature", "Annual mean temperature", "gainT.RData"))
+res <- rbind(res,  z <- getres("Humidity", "Annual mean precipitation", "gainF.RData"))
+res <- rbind(res,  getres("Nutrients", "Nitrogen deposition", "gainN.RData"))
+res <- rbind(res,  getres("Light", "Inclination", "gainL.RData"))
 ```
 
-For the temperature driven and nitrogen driven models in Table \@ref(tab:resdifeffects) we additionally tested whether the strength of the effects on colonization probability and local survival differed from the first/second to the second/third survey period. For the temperatur driven models we found that the differences how species with different Ellenberg T values responded to the average annual temperature of a site tended to decrease from the first/second study period to the second/third study period (colonization probability: period x Ellenberg T x annual mean temperature of site = `r fixef(modTcol)["factor(Period)2:Temperature:T"]`, p = `r summary(modTcol)$coefficients["factor(Period)2:Temperature:T", "Pr(>|z|)"]`; local survival: period x Ellenberg T x annual mean temperature of site = `r fixef(modTls)["factor(Period)2:Temperature:T"]`, p = `r summary(modTls)$coefficients["factor(Period)2:Temperature:T", "Pr(>|z|)"]`). In contrast, however, the differences how species with different Ellenberg N values responded to the average N deposition of a site tended to increase from the first/second study period to the second/third study period (colonization probability: period x Ellenberg N x N deposition at site = `r fixef(modNcol)["factor(Period)2:NTOT:N"]`, p = `r summary(modNcol)$coefficients["factor(Period)2:NTOT:N", "Pr(>|z|)"]`; local survival: period x Ellenberg N x N deposition at site = `r fixef(modNls)["factor(Period)2:NTOT:N"]`, p = `r summary(modNls)$coefficients["factor(Period)2:NTOT:N", "Pr(>|z|)"]`). 
-
-```{r figconsequences, fig.cap="Beschreibung einfügen."}
-# Change of correlation across study period
-getcor <- function(year) {
-  list(
-    corT = cor(surv %>% filter(yearP >= year & yearP <= (year + 4)) %>% dplyr::select(Temperature, T))[1,2],
-    corN = cor(surv %>% filter(yearP >= year & yearP <= (year + 4)) %>% dplyr::select(NTOT, N))[1,2])
-}
-tt <- map(2003:2013, getcor)
-res <- rbind(
-  tibble(cor = map_dbl(tt, "corN") / tt[[1]]$corN,
-              driver = "NTOT",
-              year = 2003:2013),
-  tibble(cor = map_dbl(tt, "corT") / tt[[1]]$corT,
-              driver = "Temperature",
-              year = 2003:2013))
-
-
-
-
-tt <- rbind(surv %>% transmute(CI = T, yr = yearPl - 2010, Type = "T", aID_STAO = aID_STAO),
-            surv %>% transmute(CI = N, yr = yearPl - 2010, Type = "N", aID_STAO = aID_STAO))
-m1 <- lmer(CI ~ Type * yr + (yr|aID_STAO), data = tt)
-m2 <- lmer(CI ~ Type + yr + (yr|aID_STAO), data = tt)
-anova(m1, m2)
-
-m3 <- lmer(CI ~ Type + yr + (yr|aID_STAO), data = tt)
-
-p1 <- ggplot(res, aes(x = year, y = cor, col = driver)) +
-  geom_point() +
-  geom_line() +
-  ylim(0.95, 1.05)
-res$yr <- res$year - 2010 
-cormod <- lm(cor ~ yr * driver, data = res)
-
-# Effect on N deposition model
-surv$yr <- surv$yearPl - 2010
-summary(glmer(SR ~ yr * NTOT * Temperature + (1|aID_STAO), data = surv, family = poisson))
-
-
-makemod <- function(year) {
-  mod <- glm(SR ~ Temperature + Precipitation + NTOT + Inclination, family = poisson,
-      data = surv %>% filter(yearP >= year & yearP <= (year + 4)))
-  arm::sim(mod, nsim)@coef
-}
-getestim <- function(x) {
-  list(meanN = mean(x[, "NTOT"]),
-       lowN = quantile(x[, "NTOT"], probs = 0.025),
-       upN = quantile(x[, "NTOT"], probs = 0.975),
-       meanT = mean(x[, "Temperature"]),
-       lowT = quantile(x[, "Temperature"], probs = 0.25),
-       upT = quantile(x[, "Temperature"], probs = 0.75))
-}
-tt <- map(2003:2013, makemod) %>% map(getestim)
-res <- rbind(
-  tibble(mean = map_dbl(tt, "meanN"),
-              low = map_dbl(tt, "lowN"),
-              up = map_dbl(tt, "upN"),
-              factor = "NTOT",
-              period = 2003:2013),
-    tibble(mean = map_dbl(tt, "meanT"),
-              low = map_dbl(tt, "lowT"),
-              up = map_dbl(tt, "upT"),
-              factor = "Temperature",
-              period = 2003:2013))
-pd <- position_dodge(0.5)
-p2 <- ggplot(res, aes(x = period, y = mean, col = factor)) +
-  geom_errorbar(aes(ymin = low, ymax = up), width = 0.5, position=pd) +
-  geom_point(position=pd) +
-  geom_line(position=pd) +
-  geom_abline(intercept = 0, slope = 0) +
-  ylim(-0.2, 0.05)
-multiplot(p1, p2, cols = 2)
- # summary(lm(mean ~ factor * period, data = res))
+```{r difffromrandomtab}
+kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.names = c("Ellenberg value", "Gradient", "Estimate", "5%", "90%", "Estimate", "5%", "90%"), caption = "Difference in the average Ellenberg of species that (a) disappeared from site or (b) newly colonized a site compared to the same number of species that were randomly selected from all species recorded at a site. Shown are the results from linear model with the difference between disappeard/colonized species and random species as dependend variable and the sitemeasure (gradient) as predictor variable.") %>% 
+  kable_styling() %>% 
+  group_rows("(a) Plants that disappeard from a site", 1, 4, bold = F, italic = T) %>%
+  group_rows("(b) Plants that newly colonized a site", 5, 8, bold = F, italic = T) %>%
+  add_header_above(c(" " = 2, "Difference from random" = 3, "Change along gradient" = 3))
 ```
 
-It thus seems that temperature is the main driver of species turnover in the first part of the study period and its importance is slightly decreasing over time and nitrogen deposition becomes relatively more important as a driver that shapes the species communities. We thus expect to see that the correlation of the mean temperature value of a community with the yearly annual temperature of the site (temperature correlation) is decreasing over the years while the correlation of the mean nutrient value of a community with the N deposition of the site (nitrogen correlation) is increasing over the years. Our results tent to be in line with this expectation (linear model: temporal trend of temperature correlation x temporal trend of nitrogen correlation = `r coef(cormod)["yr:driverTemperature"]`, p = `r  summary(cormod)$coefficients["yr:driverTemperature", "Pr(>|t|)"]`), however the change in the correlation over the study period remained week and the temperature correlation remained stronger than the nitrogen correlation over the entire study period (Left panel of Fig. \@ref(fig:figconsequences)). More important, however, was the effect on our model that we used to infer whether and how strong the spatial variation in N deposition is correlated with Nitrogen deposition. If we apply that model the estimated effect of N depositon on total species richness is increasing over the study period (right panel of \@ref(fig:figconsequences)). 
+High species turnover at a site is the result of species that disappeared from the site and species that newly colonized the site. To better understand the factors that drive these changes we are particularly interested whether the species that disappeared or colonized the sites differed in Ellenberg values compared to what would be expected if the same number of species randomly disappeared or colonized the sites and whether there is a change along the site gradients. 
 
 
 # Discussion {-}

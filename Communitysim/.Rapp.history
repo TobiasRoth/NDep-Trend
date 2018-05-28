@@ -1,0 +1,3 @@
+load("/Users/tobias/Documents/GitHub/NDep-Trend/Communitysim/gainT.RData")
+ls()
+tres

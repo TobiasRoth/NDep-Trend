@@ -98,8 +98,6 @@ compileres <- function(EL) {
 
 # Results {-}
 
-
-
 ```{r communitytrendscalc}
 res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
@@ -182,7 +180,7 @@ options(knitr.kable.NA = '')
 kable(res, align = c("l", rep("r", 3)), digits = 2,  booktabs = T, col.names = c("Gradient", "Estimate", "5%", "95%"), caption = "Change of species turnover along the four gradients. The slopes along the gradients (estimate) are given as the change per 10 years of the logit-probability of species that differed between two surveys. Estimates and the 5\\% and 95\\% quantiles of the marginal posterior distribution obtained from a Binomial-GLMM with the proportion of species that differed between two surveys as dependent variable and the site gradients and period as predictors and site-ID as random effect.")
 ```
 
-This temporal stability as inferred from the community measures was, however, in contrast to a rather large observed temporal turnover of species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seemed that the turnover from the first/second survey to the turnover of the second/third survey moderately decreased (90% Credible interval of the change in turnover estimated from the Binomial generalized linear mixed model that also contained site variables: `r CrI`). Variation in species turnover was largest along the Nitrogen deposition gradient with highest species turnover at sites with low Nitrogen depostion \@ref(tab:turnovertab). The other three gradients were less inportant to explain the variation in species turnover among sites.
+This temporal stability as inferred from the community measures was, however, in contrast to a rather large observed temporal turnover of species. The average percentage $\pm$ SD of species that differed between the first and second survey at a site was `r mean(100 * sites$change1 / (sites$nochange1 + sites$change1))` $\pm$ `r sd(100 * sites$change1 / (sites$nochange1 + sites$change1))`% and the percentage of species that differ between the second and third survey was `r mean(100 * sites$change2 / (sites$nochange2 + sites$change2))` $\pm$ `r sd(100 * sites$change2 / (sites$nochange2 + sites$change2))`%. Thus, it seemed that the turnover from the first/second survey to the turnover of the second/third survey moderately decreased (90% Credible interval of the change in turnover estimated from the Binomial generalized linear mixed model that also contained site variables: `r CrI`). Variation in species turnover was largest along the Nitrogen deposition gradient with highest species turnover at sites with low Nitrogen deposition (Table \@ref(tab:turnovertab)). The other three gradients were less inportant to explain the variation in species turnover among sites.
 
 ```{r difffromrandom}
 getres <- function(param, gradient, file) {
@@ -214,14 +212,89 @@ res <- rbind(res,  getres("Light", "Inclination", "gainL.RData"))
 ```
 
 ```{r difffromrandomtab}
-kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.names = c("Ellenberg value", "Gradient", "Estimate", "5%", "90%", "Estimate", "5%", "90%"), caption = "Difference in the average Ellenberg of species that (a) disappeared from site or (b) newly colonized a site compared to the same number of species that were randomly selected from all species recorded at a site. Shown are the results from linear model with the difference between disappeard/colonized species and random species as dependend variable and the sitemeasure (gradient) as predictor variable.") %>% 
+kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.names = c("Ellenberg value", "Gradient", "Estimate", "5%", "90%", "Estimate", "5%", "90%"), caption = "Difference in the average Ellenberg value of species that (a) disappeared from site or (b) newly colonized a site compared to the same number of species that were randomly selected from all species recorded at a site. Shown are the results from linear model with the difference between disappeard/colonized species and random species as dependend variable and the sitemeasure (gradient) as predictor variable.") %>% 
   kable_styling() %>% 
   group_rows("(a) Plants that disappeard from a site", 1, 4, bold = F, italic = T) %>%
   group_rows("(b) Plants that newly colonized a site", 5, 8, bold = F, italic = T) %>%
   add_header_above(c(" " = 2, "Difference from random" = 3, "Change along gradient" = 3))
 ```
 
-High species turnover at a site is the result of species that disappeared from the site and species that newly colonized the site. To better understand the factors that drive these changes we are particularly interested whether the species that disappeared or colonized the sites differed in Ellenberg values compared to what would be expected if the same number of species randomly disappeared or colonized the sites and whether there is a change along the site gradients. 
+High species turnover at a site is the result of species that disappeared from the site and species that newly colonized the site. To better understand the factors that drive these changes we are particularly interested whether the species that disappeared or colonized the sites differed in Ellenberg values compared to what would be expected if the same number of species randomly disappeared or colonized the sites (i.e. random disappearance and random colonization) and whether there is a change along the gradients. It seems that the Ellenberg values of newly colonizing species differened more from random colonization than the Ellenberg values of disappearing species from random disappearance (Table \@ref(tab:difffromrandomtab)). For colonizing species, we found the largest differences from random colonization in the Ellenberg value for nutrients: at sites with nitrogen deposition of 10 kg ha$^{-1}$ yr$^{-1}$ the newly colonizing species had in average a lower Ellenberg value for nutrients than species under random disappearance (column "Difference from random" in Table \@ref(tab:difffromrandomtab)), but this differences between colonizing species and random colonization decreases with increasing N deposition (column "Change along gradient" in Table \@ref(tab:difffromrandomtab)). 
+
+While colonizing species had higher temperature values compared to what we would be expected under random colonization, the differences between colonizing species and random colonization was about four times smaller compared to the Ellenberg value for nutrients. Nevertheless, the variation in Ellenberg value for temperature was impportant to explain the total species turnover. This is because, disappearing species tend to have lower temperature value than randomly dieappearing species leading to an overall replacement of species with lower temperature value with species with higher temperature values. This was not the case for the Ellenberg value for nutrients: it was also species with lower nutrients values that tended to be more likely to disappear than randomly disappearing species (Table \@ref(tab:difffromrandomtab)). See also Appendix A were we present detailed results for the comparision between colonizating and disappearing species with randomly selected species. 
+
+
+
+```{r neff, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models."}
+nsim <- 100
+X <- 5:30
+Xsd <- (X - 10) / 10
+
+library(sp)
+library(rgeos)
+
+# Help functions to get posterior samples
+getposterior <- function(x) {
+  EL1 <- plogis(simdat[x,1] + Xsd * simdat[x,2] + 2 * simdat[x,3] +  Xsd * 2 * simdat[x,4])
+  EL2 <- plogis(simdat[x,1] + Xsd * simdat[x,2] + 4 * simdat[x,3] +  Xsd * 4 * simdat[x,4])
+  ll1 <- Lines(list(Line(matrix(c(X, EL1), nc = 2, byrow = F))), ID = "1")
+  ll2 <- Lines(list(Line(matrix(c(X, EL2), nc = 2, byrow = F))), ID = "1")
+  sl1 <- SpatialLines(list(ll1), proj4string = CRS("+init=epsg:4269"))
+  sl2 <- SpatialLines(list(ll2), proj4string = CRS("+init=epsg:4269"))
+  tCL <- NA
+  try(tCL <- gIntersection(sl1, sl2, byid = TRUE)@coords[1, "x"])
+  list( 
+    `EL = 2` = EL1,
+    `EL = 4` = EL2,
+    CL = tCL)
+}
+
+compileres <- function(EL) {
+  tt <- map(1:length(X), function(s) map(post, paste(EL)) %>% map_dbl(s))
+  tibble(mean = map_dbl(tt, mean),
+         low = map_dbl(tt, quantile, probs = 0.025),
+         high = map_dbl(tt, quantile, probs = 0.975),
+         X = X,
+         value = paste(EL)
+  )
+}
+
+# Colonization
+load("Modelfit/colonization-N.RData")
+simdat <- arm::sim(mod, nsim)@fixef
+post <- map(1:nsim, getposterior)
+res <- rbind(compileres("EL = 2"), compileres("EL = 4"))
+CLs <- map_dbl(post, "CL")
+p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
+  geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
+  geom_line() +
+    labs(title = "(a) Colonization", 
+         y = "Colonization probability", 
+         x = "Nitrogen deposition") +
+  geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
+  geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
+  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2)
+
+
+# Local survival
+load("Modelfit/localsurvival-N.RData")
+simdat <- arm::sim(mod, nsim)@fixef
+post <- map(1:nsim, getposterior)
+res <- rbind(compileres("EL = 2"), compileres("EL = 4"))
+CLs <- map_dbl(post, "CL") 
+p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
+  geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
+  geom_line() +
+  labs(title = "(b) Local survival", 
+       y = "Local survival probability", 
+       x = "Nitrogen deposition")+
+  geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
+  geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
+  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2)
+multiplot(p1, p2, cols = 2)
+```
+
+
 
 
 # Discussion {-}

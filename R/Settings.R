@@ -13,10 +13,10 @@ rm(list=ls(all=TRUE))
 #------------------------------------------------------------------------------------------------------
 library(knitr)
 library(kableExtra)
-# library(xtable)
 library(tidyverse)
 library(broom)
 library(rstanarm)
+library(arm)
 library(simba)
 library(Rmisc)
 

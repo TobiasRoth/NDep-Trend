@@ -21,3 +21,9 @@ simba
 plyr
 Rmisc
 bindrcpp
+MASS
+Matrix
+lme4
+arm
+sp
+rgeos

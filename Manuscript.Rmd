@@ -97,7 +97,6 @@ compileres <- function(EL) {
 ```
 
 # Results {-}
-
 ```{r communitytrendscalc}
 res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
@@ -149,12 +148,12 @@ res[6, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
 res[6, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 ```
 
-```{r communitytrends, echo=FALSE}
+```{r communitytrendstab, echo=FALSE}
 options(knitr.kable.NA = '')
 kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.")
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a consistent increase or decrease over time (Table \@ref(tab:communitytrends)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, huminity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability for an increase: `r 
+The different measures of total community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a consistent increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, huminity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability for an increase: `r 
 res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the Ellenberg light value (probaility for a decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`) and it was least likely for the alpha-diversity (probability for an increase: `r res %>% filter(Measures == "Alpha-diversity") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrients value") %>% pull("Prob. for Trend")`. 
 
 ```{r turnover}
@@ -219,15 +218,12 @@ kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.name
   add_header_above(c(" " = 2, "Difference from random" = 3, "Change along gradient" = 3))
 ```
 
-High species turnover at a site is the result of species that disappeared from the site and species that newly colonized the site. To better understand the factors that drive these changes we are particularly interested whether the species that disappeared or colonized the sites differed in Ellenberg values compared to what would be expected if the same number of species randomly disappeared or colonized the sites (i.e. random disappearance and random colonization) and whether there is a change along the gradients. It seems that the Ellenberg values of newly colonizing species differened more from random colonization than the Ellenberg values of disappearing species from random disappearance (Table \@ref(tab:difffromrandomtab)). For colonizing species, we found the largest differences from random colonization in the Ellenberg value for nutrients: at sites with nitrogen deposition of 10 kg ha$^{-1}$ yr$^{-1}$ the newly colonizing species had in average a lower Ellenberg value for nutrients than species under random disappearance (column "Difference from random" in Table \@ref(tab:difffromrandomtab)), but this differences between colonizing species and random colonization decreases with increasing N deposition (column "Change along gradient" in Table \@ref(tab:difffromrandomtab)). 
+High species turnover at a site is the result of species that disappeared from the site and species that newly colonized the site. To better understand the factors that drive these changes we are particularly interested whether the species that disappeared or colonized the sites differed in Ellenberg values compared to what would be expected if the same number of species randomly disappeared or colonized the sites (i.e. random disappearance and random colonization) and whether there is a change along the gradients. It seems that the Ellenberg values of newly colonizing species differened more from random colonization than the Ellenberg values of disappearing species from random disappearance (Table \@ref(tab:difffromrandomtab)). For colonizing species, we found the largest differences from random colonization in the Ellenberg value for nutrients: at sites with nitrogen deposition of 10 kg ha$^{-1}$ yr$^{-1}$ the newly colonizing species had in average a lower Ellenberg value for nutrients than species under random disappearance (column "Difference from random" in Table \@ref(tab:difffromrandomtab)), but this differences between colonizing species and random colonization decreases with increasing N deposition (column "Change along gradient" in Table \@ref(tab:difffromrandomtab)). Thus at high Nitrogen deposition colonizing species did not differ from random species (see Figure 3b in Appendix A). 
 
-While colonizing species had higher temperature values compared to what we would be expected under random colonization, the differences between colonizing species and random colonization was about four times smaller compared to the Ellenberg value for nutrients. Nevertheless, the variation in Ellenberg value for temperature was impportant to explain the total species turnover. This is because, disappearing species tend to have lower temperature value than randomly dieappearing species leading to an overall replacement of species with lower temperature value with species with higher temperature values. This was not the case for the Ellenberg value for nutrients: it was also species with lower nutrients values that tended to be more likely to disappear than randomly disappearing species (Table \@ref(tab:difffromrandomtab)). See also Appendix A were we present detailed results for the comparision between colonizating and disappearing species with randomly selected species. 
+While colonizing species had higher temperature values compared to what we would be expected under random colonization, the differences between colonizing species and random colonization was about four times smaller compared to the difference in Ellenberg value for nutrients between colonizing species and random species. Nevertheless, the variation in Ellenberg value for temperature seemed impportant to explain the total species turnover. This is because, disappearing species tend to have lower temperature value than randomly disappearing species leading to an overall replacement of species with lower temperature value with species with higher temperature values. This was not the case for the Ellenberg value for nutrients: it was also species with lower nutrients values that tended to be more likely to disappear than randomly disappearing species (Table \@ref(tab:difffromrandomtab)). See also Appendix A were we present detailed results for the comparision between colonizing or disappearing species with randomly selected species. 
 
-
-
-```{r neff, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models."}
-nsim <- 100
-X <- 5:30
+```{r cl, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models."}
+X <- 1:30
 Xsd <- (X - 10) / 10
 
 # Help functions to get posterior samples
@@ -267,11 +263,11 @@ p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_line() +
   labs(title = "(a) Colonization", 
        y = "Colonization probability", 
-       x = "Nitrogen deposition") +
+       x = expression(paste("Nitrogen deposition (kg ", ha^{-1}," ", yr^{-1}, ")"))) +
   geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
   geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
-  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2)
-
+  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2) +
+  xlim(0,30)
 
 # Local survival
 load("Modelfit/localsurvival-N.RData")
@@ -279,18 +275,24 @@ simdat <- arm::sim(mod, nsim)@fixef
 post <- map(1:nsim, getposterior)
 res <- rbind(compileres("EL = 2"), compileres("EL = 4"))
 CLs <- map_dbl(post, "CL") 
+
 p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
   geom_line() +
   labs(title = "(b) Local survival", 
        y = "Local survival probability", 
-       x = "Nitrogen deposition")+
+       x = expression(paste("Nitrogen deposition (kg ", ha^{-1}," ", yr^{-1}, ")"))) +
   geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
   geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
-  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2)
+  geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2) +
+  xlim(0,30)
+
 multiplot(p1, p2, cols = 2)
 ```
 
+In Fig. \@ref(fig:cl) we compare the colonization and local survival probability of oligotrophic (Ellenberg value of nutrients = 2) and eutrophic (Ellenberg value of nutrients = 4) species along the Nitrogen deposition gradient. Colonization probability is the sa 
+
+While we could not detect a consistent decrease in average Ellenberg value for nutrients (Table \@ref(tab:communitytrendstab)), the higher colonization rate of species with low nutrient value at sites with low deposition rate affects the spatial variation of spcies richness: sites with low Nitrogen deposition become more species rich over time resulting in steeper slope of the negative relationship between N deposition and species richness. Consequently, if we apply a model as in @Roth2013 to infer the effects of N deposition on the spatial variation of species richness at different time points, the resulting effect size (i.e. the slope) becomes more negative over time (Fig. \@ref(fig:figconsequences)).
 
 ```{r figconsequences, out.width = '50%', fig.asp=0.8, fig.width=4, fig.cap="Effect size of Nitrogen deposition on total species richness estimated from applying the Poisson-GLM with species richness as dependend variable and Nitrogen deposition plus other site covariates as predictors using only the surveys from a five-year interval. Within every five-year interval all plots were sampled once."}
 # Effect on N deposition model
@@ -313,18 +315,15 @@ res <- tibble(mean = map_dbl(tt, "meanN"),
               factor = "NTOT",
               period = 2003:2013)
 
-summary(lm(mean ~ period, data = res))
-
 ggplot(res, aes(x = period, y = mean)) +
   geom_errorbar(aes(ymin = low, ymax = up), width = 0.2, lty = 2, col = "grey65") +
   geom_point() +
   geom_line() +
   geom_smooth(method = lm) +
   geom_abline(intercept = 0, slope = 0, lty = 3) +
-  labs(x = "Study period", y = "Effect of Nitrogen deposition")
+  labs(x = "Study period", y = "Effect of Nitrogen deposition") + 
+  scale_x_continuous(breaks = seq(2004, 2012, 2), labels = paste0(seq(2004, 2012, 2), "-\n", seq(2008, 2016, 2)))
 ```
-
-
 
 # Discussion {-}
 - Any empty space that could be caused by any disturbance that let to the local disappearance of species is likely to be fiellied by eutrophic species. Disturbance depends on the site, while colonization depends on species characteristics.

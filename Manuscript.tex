@@ -173,7 +173,7 @@ Environmental variables were standardized.
 
 \begin{table}
 
-\caption{\label{tab:communitytrends}Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\% and 95\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.}
+\caption{\label{tab:communitytrendstab}Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\% and 95\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.}
 \centering
 \begin{tabular}[t]{lrrrrrrr}
 \toprule
@@ -192,19 +192,19 @@ Light value & 3.56 & 3.55 & 3.55 & -0.01 & -0.02 & 0.00 & 0.09\\
 The different measures of total community structure suggested that plant
 communities in mountain hay meadows were rather stable between 2003 and
 2017 and did not show a consistent increase or decrease over time (Table
-\ref{tab:communitytrends}): for each of the three 5-year survey periods
-the averages of alpha- and beta-diversity and the average Ellenberg
-values for temperature, huminity, nutrients and light did not vary much
-among the three sampling periods and the estimated trends were rather
-small. Except for average Ellenberg value for temperature, the 90\%
-credible-interval of the temporal trend contained zero. The results from
-the linear mixed models suggest that a linear temporal change was most
-likely for the community mean of the Ellenberg value for temperature
-(probability for an increase: 0.97), followed by the community mean of
-the Ellenberg light value (probaility for a decrease: 0.91) and it was
-least likely for the alpha-diversity (probability for an increase:
-0.53). The chance that the community mean of the nutrient value
-decreased between 2003 and 2017 was 0.68.
+\ref{tab:communitytrendstab}): for each of the three 5-year survey
+periods the averages of alpha- and beta-diversity and the average
+Ellenberg values for temperature, huminity, nutrients and light did not
+vary much among the three sampling periods and the estimated trends were
+rather small. Except for average Ellenberg value for temperature, the
+90\% credible-interval of the temporal trend contained zero. The results
+from the linear mixed models suggest that a linear temporal change was
+most likely for the community mean of the Ellenberg value for
+temperature (probability for an increase: 0.97), followed by the
+community mean of the Ellenberg light value (probaility for a decrease:
+0.91) and it was least likely for the alpha-diversity (probability for
+an increase: 0.53). The chance that the community mean of the nutrient
+value decreased between 2003 and 2017 was 0.68.
 
 \begin{table}
 
@@ -282,47 +282,45 @@ disappearance (column ``Difference from random'' in Table
 \ref{tab:difffromrandomtab}), but this differences between colonizing
 species and random colonization decreases with increasing N deposition
 (column ``Change along gradient'' in Table \ref{tab:difffromrandomtab}).
+Thus at high Nitrogen deposition colonizing species did not differ from
+random species (see Figure 3b in Appendix A).
 
 While colonizing species had higher temperature values compared to what
 we would be expected under random colonization, the differences between
 colonizing species and random colonization was about four times smaller
-compared to the Ellenberg value for nutrients. Nevertheless, the
-variation in Ellenberg value for temperature was impportant to explain
-the total species turnover. This is because, disappearing species tend
-to have lower temperature value than randomly dieappearing species
-leading to an overall replacement of species with lower temperature
-value with species with higher temperature values. This was not the case
-for the Ellenberg value for nutrients: it was also species with lower
-nutrients values that tended to be more likely to disappear than
-randomly disappearing species (Table \ref{tab:difffromrandomtab}). See
-also Appendix A were we present detailed results for the comparision
-between colonizating and disappearing species with randomly selected
-species.
+compared to the difference in Ellenberg value for nutrients between
+colonizing species and random species. Nevertheless, the variation in
+Ellenberg value for temperature seemed impportant to explain the total
+species turnover. This is because, disappearing species tend to have
+lower temperature value than randomly disappearing species leading to an
+overall replacement of species with lower temperature value with species
+with higher temperature values. This was not the case for the Ellenberg
+value for nutrients: it was also species with lower nutrients values
+that tended to be more likely to disappear than randomly disappearing
+species (Table \ref{tab:difffromrandomtab}). See also Appendix A were we
+present detailed results for the comparision between colonizing or
+disappearing species with randomly selected species.
 
 \begin{figure}
-\includegraphics[width=1\linewidth]{Manuscript_files/figure-latex/neff-1} \caption{Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\%-Credible Intervals from logistic linear mixed models.}\label{fig:neff}
+\includegraphics[width=1\linewidth]{Manuscript_files/figure-latex/cl-1} \caption{Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\%-Credible Intervals from logistic linear mixed models.}\label{fig:cl}
 \end{figure}
 
-\begin{verbatim}
-## 
-## Call:
-## lm(formula = mean ~ period, data = res)
-## 
-## Residuals:
-##        Min         1Q     Median         3Q        Max 
-## -0.0233852 -0.0119052  0.0008674  0.0105638  0.0238631 
-## 
-## Coefficients:
-##              Estimate Std. Error t value Pr(>|t|)  
-## (Intercept)  6.804642   3.297836   2.063   0.0691 .
-## period      -0.003415   0.001642  -2.079   0.0674 .
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.01723 on 9 degrees of freedom
-## Multiple R-squared:  0.3245, Adjusted R-squared:  0.2494 
-## F-statistic: 4.323 on 1 and 9 DF,  p-value: 0.06736
-\end{verbatim}
+In Fig. \ref{fig:cl} we compare the colonization and local survival
+probability of oligotrophic (Ellenberg value of nutrients = 2) and
+eutrophic (Ellenberg value of nutrients = 4) species along the Nitrogen
+deposition gradient. Colonization probability is the sa
+
+While we could not detect a consistent decrease in average Ellenberg
+value for nutrients (Table \ref{tab:communitytrendstab}), the higher
+colonization rate of species with low nutrient value at sites with low
+deposition rate affects the spatial variation of spcies richness: sites
+with low Nitrogen deposition become more species rich over time
+resulting in steeper slope of the negative relationship between N
+deposition and species richness. Consequently, if we apply a model as in
+Roth et al. (2013) to infer the effects of N deposition on the spatial
+variation of species richness at different time points, the resulting
+effect size (i.e.~the slope) becomes more negative over time (Fig.
+\ref{fig:figconsequences}).
 
 \begin{figure}
 \includegraphics[width=0.5\linewidth]{Manuscript_files/figure-latex/figconsequences-1} \caption{Effect size of Nitrogen deposition on total species richness estimated from applying the Poisson-GLM with species richness as dependend variable and Nitrogen deposition plus other site covariates as predictors using only the surveys from a five-year interval. Within every five-year interval all plots were sampled once.}\label{fig:figconsequences}
@@ -428,6 +426,13 @@ Filstrup, et al. 2018. ``Biodiversity Change Is Uncoupled from Species
 Richness Trends: Consequences for Conservation and Monitoring.''
 \emph{Journal of Applied Ecology} 55 (1): 169--84.
 doi:\href{https://doi.org/10.1111/1365-2664.12959}{10.1111/1365-2664.12959}.
+
+\hypertarget{ref-Roth2013}{}
+Roth, Tobias, Lukas Kohli, Beat Rihm, and Beat Achermann. 2013.
+``Nitrogen Deposition Is Negatively Related to Species Richness and
+Species Composition of Vascular Plants and Bryophytes in Swiss Mountain
+Grassland.'' \emph{Agriculture, Ecosystems \& Environment} 178: 121--26.
+doi:\href{https://doi.org/10.1016/j.agee.2013.07.002}{10.1016/j.agee.2013.07.002}.
 
 
 

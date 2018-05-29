@@ -230,9 +230,6 @@ nsim <- 100
 X <- 5:30
 Xsd <- (X - 10) / 10
 
-library(sp)
-library(rgeos)
-
 # Help functions to get posterior samples
 getposterior <- function(x) {
   EL1 <- plogis(simdat[x,1] + Xsd * simdat[x,2] + 2 * simdat[x,3] +  Xsd * 2 * simdat[x,4])
@@ -268,9 +265,9 @@ CLs <- map_dbl(post, "CL")
 p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
   geom_line() +
-    labs(title = "(a) Colonization", 
-         y = "Colonization probability", 
-         x = "Nitrogen deposition") +
+  labs(title = "(a) Colonization", 
+       y = "Colonization probability", 
+       x = "Nitrogen deposition") +
   geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
   geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
   geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2)
@@ -294,6 +291,38 @@ p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
 multiplot(p1, p2, cols = 2)
 ```
 
+
+```{r figconsequences, out.width = '50%', fig.asp=0.8, fig.width=4, fig.cap="Effect size of Nitrogen deposition on total species richness estimated from applying the Poisson-GLM with species richness as dependend variable and Nitrogen deposition plus other site covariates as predictors using only the surveys from a five-year interval. Within every five-year interval all plots were sampled once."}
+# Effect on N deposition model
+makemod <- function(year) {
+  mod <- glm(SR ~ Elevation + I(Elevation^2) + Precipitation + NTOT + Inclination, family = poisson,
+      data = surv %>% filter(yearP >= year & yearP <= (year + 4)))
+  arm::sim(mod, nsim)@coef
+}
+
+getestim <- function(x) {
+  list(meanN = mean(x[, "NTOT"]),
+       lowN = quantile(x[, "NTOT"], probs = 0.05),
+       upN = quantile(x[, "NTOT"], probs = 0.95))
+}
+
+tt <- map(2003:2013, makemod) %>% map(getestim)
+res <- tibble(mean = map_dbl(tt, "meanN"),
+              low = map_dbl(tt, "lowN"),
+              up = map_dbl(tt, "upN"),
+              factor = "NTOT",
+              period = 2003:2013)
+
+summary(lm(mean ~ period, data = res))
+
+ggplot(res, aes(x = period, y = mean)) +
+  geom_errorbar(aes(ymin = low, ymax = up), width = 0.2, lty = 2, col = "grey65") +
+  geom_point() +
+  geom_line() +
+  geom_smooth(method = lm) +
+  geom_abline(intercept = 0, slope = 0, lty = 3) +
+  labs(x = "Study period", y = "Effect of Nitrogen deposition")
+```
 
 
 

@@ -19,6 +19,8 @@ library(rstanarm)
 library(arm)
 library(simba)
 library(Rmisc)
+library(sp)
+library(rgeos)
 
 #------------------------------------------------------------------------------------------------------
 # Load data

@@ -9,7 +9,7 @@ output:
 source("R/Settings.R")
 ```
 
-# Methods {-}
+# Introduction {-}
 ```{r functions}
 # Number of simulations
 nsim <- 100

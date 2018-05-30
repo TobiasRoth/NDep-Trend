@@ -90,7 +90,7 @@ surv$yr <- (surv$yearPl - 2010) / 10
 pl <- tbl(db, "PL") %>% 
   filter(Z7 == 0 & !is.na(aID_SP)) %>% 
   as.tibble() %>% 
-  filter(!is.na(match(aID_KD, sites$aID_KD))) %>% 
+  filter(!is.na(match(aID_KD, surv$aID_KD))) %>% 
   left_join(tbl(db, "KD_Z9"), copy = TRUE) %>% 
   transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, aID_SP = aID_SP, yearP = yearP, yearPl = yearPl, 
             Visit = as.integer(floor((yearP - 1998) / 5)),
@@ -120,38 +120,29 @@ d <- expand.grid(aID_STAO = sites$aID_STAO, aID_SP = unique(pl$aID_SP)) %>% as.t
               transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ2 = Occ)) %>% 
   left_join(pl %>% filter(yearP >= 2013 & yearP <= 2017) %>% 
               transmute(aID_STAO = aID_STAO, aID_SP = aID_SP, Occ3 = Occ)) %>% 
-  replace_na(replace = list(Occ1 = 0, Occ2 = 0, Occ3 = 0)) %>% 
-  left_join(sites) 
+  replace_na(replace = list(Occ1 = 0, Occ2 = 0, Occ3 = 0))
 
 # Prepare colonization data
 coldat <- rbind(
   d %>% filter(Occ1 == 0) %>% 
     transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
-              Temperature = Temperature, Precipitation = Precipitation,
-              NTOT = NTOT, Inclination = Inclination,
               T = T, F = F, N = N, L = L, Occ = Occ2, Period = 1),
   d %>% filter(Occ2 == 0) %>% 
-    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
-              Temperature = Temperature, Precipitation = Precipitation,
-              NTOT = NTOT, Inclination = Inclination,
-              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))%>% 
-  filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L)) 
-coldat <- coldat %>% left_join(coldat %>% group_by(aID_SP) %>% dplyr::summarise(ausw = sum(Occ)>0)) %>% 
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP,
+              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))
+
+# Remove species that never colonized a site
+coldat <- coldat %>% left_join(coldat %>% group_by(aID_SP) %>% dplyr::summarise(ausw = sum(Occ)>0)) %>%
   filter(ausw)
 
 # Prepare survival dat
 survdat <- rbind(
   d %>% filter(Occ1 == 1) %>% 
     transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
-              Temperature = Temperature, Precipitation = Precipitation,
-              NTOT = NTOT, Inclination = Inclination,
               T = T, F = F, N = N, L = L, Occ = Occ2, Period = 1),
   d %>% filter(Occ2 == 1) %>% 
-    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP, 
-              Temperature = Temperature, Precipitation = Precipitation,
-              NTOT = NTOT, Inclination = Inclination,
-              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2)) %>% 
-  filter(!is.na(T) & !is.na(F) & !is.na(N) & !is.na(L))
+    transmute(aID_STAO = aID_STAO, aID_SP =aID_SP,
+              T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))
 
 #------------------------------------------------------------------------------------------------------
 # Change siteID and save data

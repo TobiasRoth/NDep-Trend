@@ -1,7 +1,6 @@
 base
 knitr
 kableExtra
-xtable
 tidyverse
 ggplot2
 tibble
@@ -14,10 +13,16 @@ forcats
 broom
 Rcpp
 rstanarm
+MASS
+Matrix
+lme4
+arm
 permute
 lattice
 vegan
 simba
 plyr
 Rmisc
+sp
+rgeos
 bindrcpp

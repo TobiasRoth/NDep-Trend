@@ -67,11 +67,13 @@ mod <- stan_glmer(cbind(change, nochange) ~ period + Temperature + Precipitation
 save(mod, file = "Modelfit/turnover-trend.RData")
 
 #------------------------------------------------------------------------------------------------------
-# Modell for the colonization and local survival probabilities
+# Model for the colonization and local survival probabilities
 #------------------------------------------------------------------------------------------------------
+coldat <- coldat %>% left_join(sites) %>% dplyr::filter(!is.na(N))
 mod <- glmer(Occ ~ NTOT * N + (1|aID_SP) + (1|aID_STAO), data = coldat, family = binomial)
 save(mod, file = "Modelfit/colonization-N.RData")
 
+survdat <- survdat %>% left_join(sites) %>% dplyr::filter(!is.na(N))
 mod <- glmer(Occ ~ NTOT * N + (1|aID_SP) + (1|aID_STAO), data = survdat, family = binomial)
 save(mod, file = "Modelfit/localsurvival-N.RData")
 

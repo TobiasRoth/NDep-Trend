@@ -39,28 +39,14 @@ Here we infered mountain hay meadows in Switzerland. Explain why mountain hay me
 
 # Materials & Methods {-}
 
-## Monitoring data {-}
-We analysed the presence/absence of vascular plants sampled within the scope of Switzerland's Biodiversity Monitoring (BDM) programme that was launched in 2001 to monitor Switzerland's biodiversity and to comply with the Convention on Biological Diversity of Rio de Janeiro [@Weber2004]. The sampling sites were circles with a size of 10 m$^2$ and data collection was carried out by qualified botanists who visited each sampling site twice within the same season. During each visit all the vascular plant species detected on the plot were recorded. After the sampling of the plant data the botanists also assigned a habitat type to each sampling site according to the classification system developed for Switzerland [@Delarze2008].For more details on the field methods see @Plattner2004, @Roth2013 and @Roth2017.
+## Monitoring data and community measures{-}
+We analysed the presence/absence of vascular plants sampled within the scope of Switzerland's Biodiversity Monitoring (BDM) programme that was launched in 2001 to monitor Switzerland's biodiversity and to comply with the Convention on Biological Diversity of Rio de Janeiro [@Weber2004]. The sampling sites were circles with a size of 10 m$^2$ and data collection was carried out by qualified botanists who visited each sampling site twice within the same season. During each visit all the vascular plant species detected on the plot were recorded. After the sampling of the plant data the botanists also assigned a habitat type to each sampling site according to the classification system developed for Switzerland [@Delarze2008]. For more details on the field methods see @Plattner2004, @Roth2013 and @Roth2017.
 
-We matched the habitat types of the Swiss classification system with the categories from the EUNIS system [level-3 classification; @Davies2004] and selected all `r nrow(sites)` sampling sites in mountain hay meadows (EUNIS E2.3).  We analyced the data from 2003 to 2017. During that study period each sampling site was surveyed once per five-year period: the first period lasted from 2003 to 2007, the second from 2008 to 2012 and the third from 2013 to 2017.
+We matched the habitat types of the Swiss classification system with the categories from the EUNIS system [level-3 classification; @Davies2004] and selected all sampling sites in mountain hay meadows (EUNIS E2.3). We analysed the data from 2003 to 2017. During that study period each sampling site was surveyed once per five-year period: the first period lasted from 2003 to 2007, the second from 2008 to 2012 and the third from 2013 to 2017. These selection criterias resulted in sample of `r nrow(sites)` sites.
 
-## Community measures {-}
-For each survey (a survey conists of the two visits within the same season) we calculated the following community measures: (1) The number of recorded species (species richness), (2) the mean pair-wise disimilarity index (beta-diversity), (3) the community mean of the Ellenberg temperature values of recorded species (community temperature index), (4) the community mean of the Ellenberg humidity values of recorded species (community humidity index), (5) the community mean of the Ellenberg nutrients values of recorded species (community nutrients index) and (6) the community mean of the Ellenberg light values of recorded species (community light index).
+For each survey (a survey conists of the two visits within the same season) we calculated the following community measures: (1) The number of recorded species (species richness), (2) the community mean of the Ellenberg temperature values of recorded species (community temperature index), (3) the community mean of the Ellenberg humidity values of recorded species (community humidity index), (4) the community mean of the Ellenberg nutrients values of recorded species (community nutrients index) and (5) the community mean of the Ellenberg light values of recorded species (community light index). The Ellenberg values were obtained from the recalibrated indicator values for the Swiss Flora [@Landolt2010]. Additionally to these five community measures that describe the state of plant communities for each site at a given time point, we also estimated the temporal turnover (i.e. species exchange ratio sensu @Hillebrand2018) as the proportion of species that differ between two time points to describe the community change between two time points.
 
-Additionally we measured the temporal turnover (i.e. species exchange ratio sensu @Hillebrand2018) as the proportion of species that differ between two time points calculated as
-
-$\text{Temporal turnover} = \frac{\text{Species gained} + \text{Species lost}}{\text{Total species observed in both timepoints}}$.
-
-## Ellenberg values and gradients {-}
-Ellenberg indicator values:
-
-- T: Temperature
-- F: Huminity
-- N: Nutrient contentent
-- L: light
-
-Gradients among studied sites:
-
+## Environmental gradients {-}
 - Mean annual temperature
 - Mean annual precipitation
 - Nitrogen deposition
@@ -68,13 +54,18 @@ Gradients among studied sites:
 - Environmental variables were standardized.
 
 ## Statistical analyses {-}
+To estimate the linear trend over time for each of the five community measures we applied linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and the logoraithm as link function). We used the year as predictor variable and site-ID as random intercept and slope variable to account for the fact that every site was sampled three times. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
+
 - Comparision of colonizating and disappearing species with randomly selected species (refer to Appendix A).
-- Gradient study applied at diffferent time steps (describe covariates used in @Roth2013).
+
+To estimate the effect of N deposition at a given time point . We described the plant species richness at the sites using a generalized linear model with Poisson distribution and the logarihm as link function. The selection of predictor variables was based on an earlier study in Swiss mountain grasslands [@Roth2013]. Except for N deposition we thus used elevation (linear and squared term), inclination (linear and squared term), mean annual precipitation (linear and squared term), pH, average moisture value, average light value and the aspect. For the analyses the variables were standardized.
+
+
 
 # Results {-}
 ## Temporal change in community structures {-}
 ```{r communitytrendscalc}
-res <- tibble(Measures = c("Alpha-diversity", "Beta-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
+res <- tibble(Measures = c("Alpha-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
               'Period 2' = NA,
               'Period 3' = NA,
@@ -90,46 +81,38 @@ res[1, "Trend"] <- fixef(mod)["yr"]
 res[1, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
 res[1, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-# Beta diversity
-getbeta <- function(x) {
-  tmp <- simba::sim(pl %>% filter(Visit == x) %>% dplyr::select(aID_STAO, aID_SP, Occ), 
-                    method = "simpson", listin = TRUE, listout = TRUE)
-  mean(tmp$simpson)
-}
-res[2, c("Period 1", "Period 2", "Period 3")] <- lapply(1:3, getbeta)
-
 # Mean community index
-res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$T, surv$Visit, mean)
+res[2, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$T, surv$Visit, mean)
 load("Modelfit/T-trend.RData")
+res[2, "Trend"] <- fixef(mod)["yr"]
+res[2, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
+res[2, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
+
+res[3, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$F, surv$Visit, mean)
+load("Modelfit/F-trend.RData")
 res[3, "Trend"] <- fixef(mod)["yr"]
 res[3, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
 res[3, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-res[4, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$F, surv$Visit, mean)
-load("Modelfit/F-trend.RData")
+res[4, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$N, surv$Visit, mean)
+load("Modelfit/N-trend.RData")
 res[4, "Trend"] <- fixef(mod)["yr"]
 res[4, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
 res[4, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
-res[5, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$N, surv$Visit, mean)
-load("Modelfit/N-trend.RData")
+res[5, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$L, surv$Visit, mean)
+load("Modelfit/L-trend.RData")
 res[5, "Trend"] <- fixef(mod)["yr"]
 res[5, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
 res[5, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
-
-res[6, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$L, surv$Visit, mean)
-load("Modelfit/L-trend.RData")
-res[6, "Trend"] <- fixef(mod)["yr"]
-res[6, c('5%', '95%')] <- posterior_interval(mod, pars = "yr")
-res[6, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 ```
 
 ```{r communitytrendstab, echo=FALSE}
 options(knitr.kable.NA = '')
-kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.")
+kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution of the linear trend. The column 'Prob. for trend' gives the probability that the linear trend is $> 0$.")
 ```
 
-The different measures of total community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of alpha- and beta-diversity and the average Ellenberg values for temperature, huminity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability of increase: `r 
+The five measures of plant community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of alpha-diversity and the average Ellenberg values for temperature, huminity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average Ellenberg value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the Ellenberg value for temperature (probability of increase: `r 
 res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the Ellenberg light value (probability of decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`) and it was least likely for the alpha-diversity (probability of increase: `r res %>% filter(Measures == "Alpha-diversity") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrients value") %>% pull("Prob. for Trend")`. 
 
 ## Different drivers of species turnover {-}
@@ -274,13 +257,17 @@ In Fig. \@ref(fig:cl) we compare the colonization and local survival probability
 While we could not detect a consistent decrease in average Ellenberg value for nutrients (Table \@ref(tab:communitytrendstab)), the higher colonization rate of species with low nutrient value at sites with low deposition rate seems to affect the spatial variation of species richness: sites with low Nitrogen deposition are likely to become more species rich over time likely resulting in steeper slope of the negative relationship between N deposition and species richness. Indeed, if we apply at different time points a similar model as in @Roth2013 to infer the effects of N deposition on the spatial variation of species richness, the resulting effect size (i.e. the slope) becomes more negative over time (Fig. \@ref(fig:figconsequences)).
 
 ```{r figconsequences, out.width = '50%', fig.asp=0.8, fig.width=4, fig.cap="Effect size of Nitrogen deposition on total species richness estimated from applying the Poisson-GLM with species richness as dependend variable and Nitrogen deposition plus other site covariates as predictors using only the surveys from one five-year interval. Note that within every five-year interval all plots were sampled once."}
-# Effect on N deposition model
+# Add site covariates to 'surv'
+dat <- surv %>% left_join(sites)
+
+# Estimate effect of N deposition at a given time point
 makemod <- function(year) {
-  mod <- glm(SR ~ Elevation + I(Elevation^2) + Precipitation + NTOT + Inclination, family = poisson,
-      data = surv %>% filter(yearP >= year & yearP <= (year + 4)))
+  mod <- glm(SR ~ Temperature + Precipitation + NTOT + Inclination,
+             data = dat %>% filter(yearP >= year & yearP <= (year + 4)), family = poisson)
   arm::sim(mod, nsim)@coef
 }
 
+# Get estimates from the marginal the posterior distribution of the effect of N deposition
 getestim <- function(x) {
   list(meanN = mean(x[, "NTOT"]),
        lowN = quantile(x[, "NTOT"], probs = 0.05),

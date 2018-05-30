@@ -98,86 +98,53 @@ mountain hay meadows (climate change, land-use change).
 \section*{Materials \& Methods}\label{materials-methods}
 \addcontentsline{toc}{section}{Materials \& Methods}
 
-\subsection*{Monitoring data}\label{monitoring-data}
-\addcontentsline{toc}{subsection}{Monitoring data}
+\subsection*{Monitoring data and community
+measures}\label{monitoring-data-and-community-measures}
+\addcontentsline{toc}{subsection}{Monitoring data and community
+measures}
 
 We analysed the presence/absence of vascular plants sampled within the
 scope of Switzerland's Biodiversity Monitoring (BDM) programme that was
 launched in 2001 to monitor Switzerland's biodiversity and to comply
 with the Convention on Biological Diversity of Rio de Janeiro (Weber,
-Hintermann, and Zangger 2004). Data collection was carried out by
-qualified botanists who visited each sampling site twice per season.
+Hintermann, and Zangger 2004). The sampling sites were circles with a
+size of 10 m\(^2\) and data collection was carried out by qualified
+botanists who visited each sampling site twice within the same season.
 During each visit all the vascular plant species detected on the plot
 were recorded. After the sampling of the plant data the botanists also
 assigned a habitat type to each sampling site according to the
 classification system developed for Switzerland (Delarze and Gonseth
-2008).For more details on the field methods see Plattner, Birrer, and
+2008). For more details on the field methods see Plattner, Birrer, and
 Weber (2004), Roth et al. (2013) and Roth et al. (2017).
 
 We matched the habitat types of the Swiss classification system with the
 categories from the EUNIS system (level-3 classification; Davies, Moss,
-and Hill 2004).
+and Hill 2004) and selected all sampling sites in mountain hay meadows
+(EUNIS E2.3). We analysed the data from 2003 to 2017. During that study
+period each sampling site was surveyed once per five-year period: the
+first period lasted from 2003 to 2007, the second from 2008 to 2012 and
+the third from 2013 to 2017. These selection criterias resulted in
+sample of 129 sites.
 
-In the present study, we analysed the 129 sampling sites in mountain hay
-meadows (EUNIS E2.3).
+For each survey (a survey conists of the two visits within the same
+season) we calculated the following community measures: (1) The number
+of recorded species (species richness), (2) the community mean of the
+Ellenberg temperature values of recorded species (community temperature
+index), (3) the community mean of the Ellenberg humidity values of
+recorded species (community humidity index), (4) the community mean of
+the Ellenberg nutrients values of recorded species (community nutrients
+index) and (5) the community mean of the Ellenberg light values of
+recorded species (community light index). The Ellenberg values were
+obtained from the recalibrated indicator values for the Swiss Flora
+(Landolt et al. 2010). Additionally to these five community measures
+that describe the state of plant communities for each site at a given
+time point, we also estimated the temporal turnover (i.e.~species
+exchange ratio sensu Hillebrand et al. (2018)) as the proportion of
+species that differ between two time points to describe the community
+change between two time points.
 
-The sampling sites were circles with a size of 10 m\(^2\) that were
-arranged on a regular sampling grid covering the whole of Switzerland.
-Each sampling site was surveyed once in each survey period: first survey
-period lasted from 2003 to 2007, the second from 2008 to 2012 and the
-third from 2013 to 2017.
-
-\begin{itemize}
-\tightlist
-\item
-  Selection of sample sites based on 1366 K\_Standort.csv column
-  ``E23\_1366''. The site with exceptionally high nitrogen deposition
-  was excluded from that list.
-\item
-  Three surveys 2003 - 2007, 2008 - 2012 and 2013 - 2017.
-\end{itemize}
-
-\subsection*{Community measures}\label{community-measures}
-\addcontentsline{toc}{subsection}{Community measures}
-
-To describe the plant communities we used the following measures:
-
-\begin{itemize}
-\tightlist
-\item
-  Species richness: number of recorded species per \(10m^2\).
-\item
-  Spatial turnover (beta-diversity): Average turnover between all
-  pair-wise combinations of study plots.
-\item
-  gamma diversity: Total number of species recorded in all study plots.
-\item
-  The temporal turnover (i.e.~species exchange ratio sensu Hillebrand et
-  al. (2018)) is the proportion of species that differ between two time
-  points calculated as
-\end{itemize}
-
-\(\text{Temporal turnover} = \frac{\text{Species gained} + \text{Species lost}}{\text{Total species observed in both timepoints}}\).
-
-\subsection*{Ellenberg values and
-gradients}\label{ellenberg-values-and-gradients}
-\addcontentsline{toc}{subsection}{Ellenberg values and gradients}
-
-Ellenberg indicator values:
-
-\begin{itemize}
-\tightlist
-\item
-  T: Temperature
-\item
-  F: Huminity
-\item
-  N: Nutrient contentent
-\item
-  L: light
-\end{itemize}
-
-Gradients among studied sites:
+\subsection*{Environmental gradients}\label{environmental-gradients}
+\addcontentsline{toc}{subsection}{Environmental gradients}
 
 \begin{itemize}
 \tightlist
@@ -196,15 +163,31 @@ Gradients among studied sites:
 \subsection*{Statistical analyses}\label{statistical-analyses}
 \addcontentsline{toc}{subsection}{Statistical analyses}
 
+To estimate the linear trend over time for each of the five community
+measures we applied linear mixed models with normal distribution (except
+for alpha-diversity with Poisson distribution and the logoraithm as link
+function). We used the year as predictor variable and site-ID as random
+intercept and slope variable to account for the fact that every site was
+sampled three times. Model parameters were estimated in a Bayesian
+framework using the R-Package \emph{rstanarm} (Stan Development Team
+2016, Muth, Oravecz, and Gabry (2018)).
+
 \begin{itemize}
 \tightlist
 \item
   Comparision of colonizating and disappearing species with randomly
   selected species (refer to Appendix A).
-\item
-  Gradient study applied at diffferent time steps (describe covariates
-  used in Roth et al. (2013)).
 \end{itemize}
+
+To estimate the effect of N deposition at a given time point . We
+described the plant species richness at the sites using a generalized
+linear model with Poisson distribution and the logarihm as link
+function. The selection of predictor variables was based on an earlier
+study in Swiss mountain grasslands (Roth et al. 2013). Except for N
+deposition we thus used elevation (linear and squared term), inclination
+(linear and squared term), mean annual precipitation (linear and squared
+term), pH, average moisture value, average light value and the aspect.
+For the analyses the variables were standardized.
 
 \section*{Results}\label{results}
 \addcontentsline{toc}{section}{Results}
@@ -216,38 +199,37 @@ structures}
 
 \begin{table}
 
-\caption{\label{tab:communitytrendstab}Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as  change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function) with site-ID as random intercept and slope effect. The measure of precision for the temporal trend is given as the 5\% and 95\% quantiles of the marginal posterior distribution. Finally, the probability that the linear trend is $> 0$ is given. Linear mixed models were not applicable for beta-diversity because measures for beta-diversity were not available for the single sites.}
+\caption{\label{tab:communitytrendstab}Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for alpha-diversity with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\% and 95\% quantiles of the marginal posterior distribution of the linear trend. The column 'Prob. for trend' gives the probability that the linear trend is $> 0$.}
 \centering
 \begin{tabular}[t]{lrrrrrrr}
 \toprule
 Measures & Period 1 & Period 2 & Period 3 & Trend & 5\% & 95\% & Prob. for trend\\
 \midrule
 Alpha-diversity & 45.72 & 46.02 & 45.74 & 0.00 & -0.03 & 0.03 & 0.53\\
-Beta-diversity & 0.60 & 0.60 & 0.60 &  &  &  & \\
-Temperature value & 3.11 & 3.13 & 3.13 & 0.01 & 0.00 & 0.02 & 0.97\\
-Huminity value & 2.99 & 2.98 & 2.99 & 0.01 & -0.01 & 0.02 & 0.78\\
-Nutrients value & 3.20 & 3.20 & 3.20 & -0.01 & -0.02 & 0.01 & 0.32\\
-Light value & 3.56 & 3.55 & 3.55 & -0.01 & -0.02 & 0.00 & 0.09\\
+Temperature value & 3.11 & 3.13 & 3.13 & 0.01 & 0.00 & 0.03 & 0.97\\
+Huminity value & 2.99 & 2.98 & 2.99 & 0.01 & -0.01 & 0.02 & 0.80\\
+Nutrients value & 3.20 & 3.20 & 3.20 & 0.00 & -0.02 & 0.01 & 0.33\\
+Light value & 3.56 & 3.55 & 3.55 & -0.01 & -0.02 & 0.00 & 0.07\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The different measures of total community structure suggested that plant
+The five measures of plant community structure suggested that plant
 communities in mountain hay meadows were rather stable between 2003 and
 2017 and did not show a clear increase or decrease over time (Table
 \ref{tab:communitytrendstab}): for each of the three 5-year survey
-periods the averages of alpha- and beta-diversity and the average
-Ellenberg values for temperature, huminity, nutrients and light did not
-vary much among the three sampling periods and the estimated trends were
-rather small. Except for average Ellenberg value for temperature, the
-90\% credible-interval of the temporal trend contained zero. The results
-from the linear mixed models suggest that a linear temporal change was
-most likely for the community mean of the Ellenberg value for
-temperature (probability of increase: 0.97), followed by the community
-mean of the Ellenberg light value (probability of decrease: 0.91) and it
-was least likely for the alpha-diversity (probability of increase:
-0.53). The chance that the community mean of the nutrient value
-decreased between 2003 and 2017 was 0.68.
+periods the averages of alpha-diversity and the average Ellenberg values
+for temperature, huminity, nutrients and light did not vary much among
+the three sampling periods and the estimated trends were rather small.
+Except for average Ellenberg value for temperature, the 90\%
+credible-interval of the temporal trend contained zero. The results from
+the linear mixed models suggest that a linear temporal change was most
+likely for the community mean of the Ellenberg value for temperature
+(probability of increase: 0.97), followed by the community mean of the
+Ellenberg light value (probability of decrease: 0.93) and it was least
+likely for the alpha-diversity (probability of increase: 0.53). The
+chance that the community mean of the nutrient value decreased between
+2003 and 2017 was 0.67.
 
 \subsection*{Different drivers of species
 turnover}\label{different-drivers-of-species-turnover}
@@ -272,10 +254,10 @@ Inclination & -0.04 & -0.10 & 0.03\\
 This temporal stability as inferred from the community measures was,
 however, in contrast to a rather large observed temporal turnover of
 species. The average percentage \(\pm\) SD of species that differed
-between the first and second survey at a site was 37.65 \(\pm\) 10.43\%
-and the percentage of species that differ between the second and third
-survey was 35.66 \(\pm\) 10.36\%. Thus, it seemed that the turnover from
-the first/second survey to the turnover of the second/third survey
+between the first and second survey at a site was NaN \(\pm\) NA\% and
+the percentage of species that differ between the second and third
+survey was NaN \(\pm\) NA\%. Thus, it seemed that the turnover from the
+first/second survey to the turnover of the second/third survey
 moderately decreased (90\% Credible interval of the change in turnover
 estimated from the Binomial generalized linear mixed model: -0.15 -
 -0.02). Variation in species turnover was largest along the Nitrogen
@@ -469,7 +451,7 @@ the Fondation de bienfaisance Jeanne Lovioz, and the MAVA Foundation.
 \hypertarget{ref-Davies2004}{}
 Davies, CE, D Moss, and MO Hill. 2004. ``EUNIS Habitat Classification,
 Revised 2004. Report to European Environment Agency, European Topic
-Centre on Nature Protection and Biodiversity.'' \emph{Google Scholar}.
+Centre on Nature Protection and Biodiversity.''
 
 \hypertarget{ref-Delarze2008}{}
 Delarze, Raymond, and Yves Gonseth. 2008. \emph{Lebensräume Der Schweiz:
@@ -483,6 +465,17 @@ Filstrup, et al. 2018. ``Biodiversity Change Is Uncoupled from Species
 Richness Trends: Consequences for Conservation and Monitoring.''
 \emph{Journal of Applied Ecology} 55 (1): 169--84.
 doi:\href{https://doi.org/10.1111/1365-2664.12959}{10.1111/1365-2664.12959}.
+
+\hypertarget{ref-Landolt2010}{}
+Landolt, Elias, Beat Bäumler, Andreas Erhardt, Otto Hegg, Frank Klötzli,
+Walter Lämmler, Michael Nobis, et al. 2010. \emph{Flora Indicativa.
+Ecological Inicator Values and Biological Attributes of the Flora of
+Switzerland and the Alps.} Haupt Verlag.
+
+\hypertarget{ref-Muth2018}{}
+Muth, Chelsea, Zita Oravecz, and Jonah Gabry. 2018. ``User-Friendly
+Bayesian Regression Modeling: A Tutorial with Rstanarm and Shinystan.''
+\emph{The Quantitative Methods for Psychology} 14 (2): 99--119.
 
 \hypertarget{ref-Plattner2004}{}
 Plattner, Matthias, Stefan Birrer, and Darius Weber. 2004. ``Data
@@ -501,6 +494,10 @@ Roth, Tobias, Lukas Kohli, Beat Rihm, Reto Meier, and Beat Achermann.
 2017. ``Using Change-Point Models to Estimate Empirical Critical Loads
 for Nitrogen in Mountain Ecosystems.'' \emph{Environmental Pollution}
 220: 1480--7.
+
+\hypertarget{ref-Stan2016}{}
+Stan Development Team. 2016. ``Rstanarm: Bayesian Applied Regression
+Modeling via Stan.'' \url{http://mc-stan.org/}.
 
 \hypertarget{ref-Weber2004}{}
 Weber, Darius, Urs Hintermann, and Adrian Zangger. 2004. ``Scale and

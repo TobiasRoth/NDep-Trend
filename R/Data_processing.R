@@ -37,16 +37,36 @@ tmp <- table(tmp$aID_STAO)
 sum(tmp != 3)
 sel <- names(tmp[tmp == 3])
 
-# Select surveys and add site data
+#------------------------------------------------------------------------------------------------------
+# Prepare site data 
+#------------------------------------------------------------------------------------------------------
+# Add Turnover to 'surv'
+sites <- tibble(aID_STAO = as.integer(sel)) %>% 
+  left_join(tbl(db, "RAUMDATEN_Z9") %>% 
+              transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, Aspect = Expos, CACO3 = CACO3, 
+                        Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
+  left_join(tbl(db, "RAUMDATEN_Z9_NABO") %>% 
+              transmute(aID_STAO = aID_STAO, pH = pH), by = c("aID_STAO" = "aID_STAO"), copy = TRUE) %>% 
+  left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
+              transmute(aID_STAO = aID_STAO, NTOT_1980 = NTOT1980_Wiesen, NTOT_1990 = NTOT1990_Wiesen, 
+                        NTOT_2000 = NTOT2000_Wiesen, NTOT_2010 = NTOT2010_Wiesen, NTOT_2015 = NTOT2015_Wiesen), copy = TRUE)
+
+# Standardize covariates
+sites$Elevation <- (sites$Elevation - 1000) / 500
+sites$Temperature <- (sites$Temperature - 50) / 10
+sites$Precipitation <- (sites$Precipitation - 1000) / 200
+sites$NTOT <- (sites$NTOT_2010 - 10) / 10
+sites$Inclination <- (sites$Inclination - 10) / 10
+sites$pH <- sites$pH - 6
+
+#------------------------------------------------------------------------------------------------------
+# Prepare survey data 
+#------------------------------------------------------------------------------------------------------
+# Select surveys
 surv <- tbl(db, "KD_Z9") %>% 
   as.tibble() %>% 
   filter(!is.na(match(aID_STAO, sel)) & !is.na(yearPl) & yearP >= 2003 & yearP <= 2017) %>% 
-  transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, yearP = yearP, yearPl = yearPl, Visit = as.integer(floor((yearP - 1998) / 5))) %>% 
-  left_join(tbl(db, "RAUMDATEN_Z9") %>% 
-              transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
-                       Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
-  left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010_Wiesen), copy = TRUE)
+  transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, yearP = yearP, yearPl = yearPl, Visit = as.integer(floor((yearP - 1998) / 5)))
 
 # Add community measures to 'surv'
 surv <- surv %>% left_join(
@@ -56,27 +76,18 @@ surv <- surv %>% left_join(
     group_by(aID_KD) %>% 
     dplyr::summarise(
       SR = n(),
-      SR_oligo = sum(N <= 2, na.rm = TRUE),
-      SR_eutro = sum(N >= 4, na.rm = TRUE),
-      SLA = mean(log(SLA), na.rm = TRUE),
-      CH = mean(log(CH), na.rm = TRUE),
-      SM = mean(log(SM), na.rm = TRUE),
-      SLA_sd = sd(log(SLA), na.rm = TRUE),
-      CH_sd = sd(log(CH), na.rm = TRUE),
-      SM_sd = sd(log(SM), na.rm = TRUE),
       T = mean(T, na.rm = TRUE), 
       F = mean(F, na.rm = TRUE),
       N = mean(N, na.rm = TRUE),
-      L = mean(L, na.rm = TRUE),
-      MV = mean(MV, na.rm = TRUE)), copy = TRUE)
+      L = mean(L, na.rm = TRUE)), copy = TRUE)
 
 #------------------------------------------------------------------------------------------------------
-# Selection plants data
+# Prepare plant data
 #------------------------------------------------------------------------------------------------------
 pl <- tbl(db, "PL") %>% 
   filter(Z7 == 0 & !is.na(aID_SP)) %>% 
   as.tibble() %>% 
-  filter(!is.na(match(aID_KD, surv$aID_KD))) %>% 
+  filter(!is.na(match(aID_KD, sites$aID_KD))) %>% 
   left_join(tbl(db, "KD_Z9"), copy = TRUE) %>% 
   transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, aID_SP = aID_SP, yearP = yearP, yearPl = yearPl, 
             Visit = as.integer(floor((yearP - 1998) / 5)),
@@ -84,17 +95,8 @@ pl <- tbl(db, "PL") %>%
   left_join(tbl(db, "Traits_PL") %>% dplyr::select(aID_SP, T, F, N, L), copy = TRUE) 
 
 #------------------------------------------------------------------------------------------------------
-# Sites data 
+# Add data for turnover calculation to 'sites'
 #------------------------------------------------------------------------------------------------------
-# Add Turnover to 'surv'
-sites <- data.frame(aID_STAO = as.integer(sel)) %>% 
-  as.tibble() %>% 
-  left_join(tbl(db, "RAUMDATEN_Z9") %>% 
-              transmute(aID_STAO = aID_STAO, Elevation = Hoehe, Inclination = Neig, 
-                            Temperature = bio1, Precipitation = bio12), copy = TRUE) %>% 
-  left_join(tbl(db, "RAUMDATEN_Z9_NDEP") %>% 
-              transmute(aID_STAO = aID_STAO, NTOT = NTOT2010_Wiesen), copy = TRUE)
-
 for(i in 1:nrow(sites)) {
   tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
   sites[i, "nochange1"] <- tt$a
@@ -103,22 +105,6 @@ for(i in 1:nrow(sites)) {
   sites[i, "nochange2"] <- tt$a
   sites[i, "change2"] <- tt$b + tt$c
 }
-
-#------------------------------------------------------------------------------------------------------
-# Data transformation
-#------------------------------------------------------------------------------------------------------
-surv$yr <- (surv$yearPl - 2010) / 10
-surv$Elevation <- (surv$Elevation - 1000) / 500
-surv$Temperature <- (surv$Temperature - 50) / 10
-surv$Precipitation <- (surv$Precipitation - 1000) / 200
-surv$NTOT <- (surv$NTOT - 10) / 10
-surv$Inclination <- (surv$Inclination - 10) / 10
-
-sites$Elevation <- (sites$Elevation - 1000) / 500
-sites$Temperature <- (sites$Temperature - 50) / 10
-sites$Precipitation <- (sites$Precipitation - 1000) / 200
-sites$NTOT <- (sites$NTOT - 10) / 10
-sites$Inclination <- (sites$Inclination - 10) / 10
 
 #------------------------------------------------------------------------------------------------------
 # Compile data for colonization and local survival calculations

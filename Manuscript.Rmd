@@ -201,6 +201,26 @@ High species turnover at a site is the result of species that disappeared from t
 While colonizing species had higher temperature values compared to what we would expect under random colonization, the differences between colonizing species and random colonization was about four times smaller compared to the difference in indicator value for nutrients between colonizing species and random species. Nevertheless, the variation in indicator value for temperature seemed important to explain the total species turnover. This is because, disappearing species tend to have lower temperature value than random species as well as colonizing species tend to have higher temperature values than random species; both processes lead to an overall replacement of species with lower temperature value with species with higher temperature values. This was not the case for the indicator value for nutrients: species with lower nutrients values tended to be more likely to disappear from as well as to colonize sites compared to random species (Table \@ref(tab:difffromrandomtab)). See also Appendix A were we present detailed results for the comparison between colonizing or disappearing species with randomly selected species. 
 
 ## Potential effects of reduction in Nitrogen emmissions {-}
+```{r Ndepchange, fig.cap="(a) The nitrogen deposition in 2010 and (b) the change in Nitrogen deposition between 2000 and 2010 along the elevational gradient of the study sites."}
+p1 <- ggplot(sites, aes(x = Elevation * 500 + 1000, y = NTOT_2000)) +
+  geom_point(cex = 0.8) +
+  geom_smooth(method = loess) +
+  geom_abline(intercept = 0, slope = 0, lty = 3) +
+  labs(title = "(a) Nitrogen deposition in 2010", 
+       y = expression(paste("Nitrogen deposition (kg ", ha^{-1}," ", yr^{-1}, ")")), 
+       x = "Elevation (m)") 
+p2 <- ggplot(sites, aes(x = Elevation * 500 + 1000, y = (NTOT_2010 - NTOT_2000) )) +
+  geom_point(cex = 0.8) +
+  geom_smooth(method = loess)  +
+  labs(title = "(b) Temporal change (2000 to 2010)", 
+       y = expression(paste(Delta, "Nitrogen deposition (kg ", ha^{-1}," ", yr^{-1}, ")")), 
+       x = "Elevation (m)") +
+  geom_hline(yintercept = 0, lty = 2) 
+multiplot(p1, p2, cols = 2)
+```
+
+Nitrogen deposition decreased with increasing elevation (\@ref(fig:Ndepchange)a). In 2010 only `r 100 * mean(sites$NTOT_2010 < 10)`% of sites had a Nitrogen deposition rate of less than 10 kg N ha$^{-1}$ yr$^{-1}$, which lied all above 1000m. Between 2000 and 2010 the Nitrogen deposition decreased in average around 2 kg N ha$^{-1}$ yr$^{-1}$ with slightly larger net decreases at lower elevation (\@ref(fig:Ndepchange)a).
+
 ```{r cl, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models. The vertical lines indicat the deposition rate with equal colonization or survival probabilities for oligotrophic and eutrophic species with the solid line indicating the median and the dashed lines the 5\\% and 95\\% quantiels of the margional posterior distribution."}
 X <- 1:30
 Xsd <- (X - 10) / 10
@@ -247,7 +267,9 @@ p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_vline(xintercept = median(CLs, na.rm = TRUE)) +
   geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
   geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2) +
-  xlim(0,30)
+  xlim(0,30) + theme(legend.position = c(0.75, 0.9)) + 
+  scale_color_manual(labels = c("Nutrients value = 2", "Nutrients value = 4"), 
+                     values = tcol[c(2,4)]) 
 
 # Local survival
 load("Modelfit/localsurvival-N.RData")
@@ -265,7 +287,9 @@ p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_vline(xintercept = mean(CLs, na.rm = TRUE)) +
   geom_vline(xintercept = quantile(CLs, probs = 0.05, na.rm = TRUE), lty = 2) +
   geom_vline(xintercept = quantile(CLs, probs = 0.95, na.rm = TRUE), lty = 2) +
-  xlim(0,30)
+  xlim(0,30) + theme(legend.position = c(0.75, 0.9)) + 
+  scale_color_manual(labels = c("Nutrients value = 2", "Nutrients value = 4"), 
+                     values = tcol[c(2,4)]) 
 
 multiplot(p1, p2, cols = 2)
 ```
@@ -331,8 +355,6 @@ xxx
 We thank the dedicated and qualified botanists who conducted fieldwork. The Swiss Federal Office for the Environment (FOEN) kindly provided biodiversity monitoring data and topographic data. This work was supported by the FOEN, the Swiss National Science Foundation (grant no. 31003A_156294), the Swiss Association Pro Petite Camargue Alsacienne, the Fondation de bienfaisance Jeanne Lovioz, and the MAVA Foundation.
 
 # References {-}
-
-
 
 
 ```{r}

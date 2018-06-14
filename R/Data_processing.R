@@ -110,6 +110,31 @@ for(i in 1:nrow(sites)) {
 }
 
 #------------------------------------------------------------------------------------------------------
+# Turnover between two survey from the same year
+#------------------------------------------------------------------------------------------------------
+# Select sites with two surveys per year
+turnover_double <- tbl(db, "KD_Z9") %>% 
+  filter(Aufnahmetyp == "Doppelaufnahme_Z9_Pflanzen") %>% 
+  filter(yearPl >= 2003 & yearPl <= 2017) %>% 
+  as.tibble() %>% 
+  filter(!is.na(match(aID_STAO, sites$aID_STAO))) %>% 
+  transmute(aID_KD_K = aID_KD,  aID_STAO = aID_STAO, yearPl = yearPl) %>% 
+  left_join(surv %>% transmute(aID_KD_R = aID_KD,  aID_STAO = aID_STAO, yearPl = yearP)) %>% 
+  filter(!is.na(aID_KD_R))
+
+getturnover <- function(x) {
+  tbl(db, "PL") %>% 
+    filter(aID_KD == turnover_double$aID_KD_K[x] | 
+             aID_KD == turnover_double$aID_KD_R[x]) %>% 
+    filter(!is.na(aID_SP)) %>% 
+    transmute(aID_KD = aID_KD, aID_SP = aID_SP, Occ = 1) %>% 
+    sim(method = "cocogaston", listin = TRUE, listout = TRUE) %>% 
+    pull(cocogaston)
+}
+
+turnover_double$turnover <- map_dbl(1:nrow(turnover_double), getturnover)
+
+#------------------------------------------------------------------------------------------------------
 # Compile data for colonization and local survival calculations
 #------------------------------------------------------------------------------------------------------
 d <- expand.grid(aID_STAO = sites$aID_STAO, aID_SP = unique(pl$aID_SP)) %>% as.tibble() %>% 
@@ -167,3 +192,5 @@ save(coldat, file = "RData/coldat.RData")
 survdat$aID_STAO <- siteIDs$siteID[match(survdat$aID_STAO, siteIDs$aID_STAO)]
 save(survdat, file = "RData/survdat.RData")
 
+turnover_double$aID_STAO <- siteIDs$siteID[match(turnover_double$aID_STAO, siteIDs$aID_STAO)]
+save(turnover_double, file = "RData/turnover_double.RData")

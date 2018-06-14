@@ -219,7 +219,7 @@ p2 <- ggplot(sites, aes(x = Elevation * 500 + 1000, y = (NTOT_2010 - NTOT_2000) 
 multiplot(p1, p2, cols = 2)
 ```
 
-Nitrogen deposition decreased with increasing elevation (\@ref(fig:Ndepchange)a). In 2010 only `r 100 * mean(sites$NTOT_2010 < 10)`% of sites had a Nitrogen deposition rate of less than 10 kg N ha$^{-1}$ yr$^{-1}$, which lied all above 1000m. Between 2000 and 2010 the Nitrogen deposition decreased in average around 2 kg N ha$^{-1}$ yr$^{-1}$ with slightly larger net decreases at lower elevation (\@ref(fig:Ndepchange)a).
+Nitrogen deposition decreased with increasing elevation (Fig. \@ref(fig:Ndepchange)a). In 2010 only `r 100 * mean(sites$NTOT_2010 < 10)`% of sites had a Nitrogen deposition rate of less than 10 kg N ha$^{-1}$ yr$^{-1}$, which lied all above 1000m. Between 2000 and 2010 the Nitrogen deposition decreased in average around 2 kg N ha$^{-1}$ yr$^{-1}$ with slightly larger net decreases at lower elevation (Fig. \@ref(fig:Ndepchange)a).
 
 ```{r cl, fig.cap="Colonization (a) and local survival (b) of oligotrophic (Ellenberg N = 2; red line) and eutrophic (Ellengerg N = 4) species along the N deposition gradient. Given are means and 95\\%-Credible Intervals from logistic linear mixed models. The vertical lines indicat the deposition rate with equal colonization or survival probabilities for oligotrophic and eutrophic species with the solid line indicating the median and the dashed lines the 5\\% and 95\\% quantiels of the margional posterior distribution."}
 X <- 1:30

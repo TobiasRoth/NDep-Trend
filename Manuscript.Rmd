@@ -8,21 +8,19 @@ author:
     email: t.roth@unibas.ch
   - name: Lukas Kohli
     affiliation: 2
- - name: Beat Rihm
+  - name: Beat Rihm
     affiliation: 3
- - name: Reto Meier
+  - name: Reto Meier
     affiliation: 4    
 affiliation:
   - code: 1
     address: Zoological Institute, University of Basel, Basel, Switzerland
   - code: 2
     address: Hintermann  Weber AG, Austrasse 2a, 4153 Reinach, Switzerland
- - code: 3
+  - code: 3
     address: Meteotest,Fabrikstrasse 14, 3012 Bern, Switzerland 
- - code: 4
-    address: Federal Office for the Environment (FOEN), Air Pollution Control and Chemicals Division, 3003 Bern, Switzerland     
-    
-    
+  - code: 4
+    address: Federal Office for the Environment (FOEN), Air Pollution Control and Chemicals Division, 3003 Bern, Switzerland
 abstract: >
   Nitrogen (N) deposition is a major threat to biodiversity of many habitats. The recent introduction of cleaner technologies in Switzerland has let to reductions in the emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition. We infered different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring.  
   
@@ -40,15 +38,20 @@ source("R/Settings.R")
 
 
 # Introduction {-}
-Nitrogen deposition is supposed to be one of the major threats to biodiversity (Sala 2000, Bobbink 2010, Menier et al. 2016). There is strong evidence for the impairment of biodiversity by nitrogen deposition for species-rich acid and calcareous grasslands in Europe (Stevens et al. 2006, Maskell et al. 2010, Duprè et al. 2010). Fertilizing experiments show that plant biodiversity in mountain grasslands is negatively affected by nitrogen addition, too (Humbert et al. 2016). 
-Since the late 1980s measures to reduce atmospheric pollution have successfully reduced emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition in many parts of Europe (Tørseth et al., 2012, Maas and Grennfelt, 2016) [Tørseth et al.,: Atmos. Chem. Phys., 12, 5447–5481, 2012]. 
+Nitrogen deposition is one of the major threats to biodiversity (Sala 2000, Bobbink 2010, Menier et al. 2016). Especially, there is strong evidence for the reduction in diversity of species-rich grasslands in Europe (Stevens et al. 2006, Maskell et al. 2010, Duprè et al. 2010). 
 
-However, it is an open question whether and how fast the reduction in N deposition rates will lead to the recovery of extant plant communities.  Quantifying the potential recovery of biodiversity in response to reducing air pollution requires an alternative to the space-for-time approach, ideally monitoring long-term community dynamics on permanent plots (Duprã, C. et al. Changes in species richness and composition in European acidic grasslands over the past 70 years: the contribution of cumulative atmospheric nitrogen deposition. Glob. Change Biol. 16, 344–357, (2010).
+Fertilizing experiments show that plant biodiversity in mountain grasslands is negatively affected by nitrogen addition, too (Humbert et al. 2016). 
+
+Since the late 1980s measures to reduce atmospheric pollution have successfully reduced emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition in many parts of Europe (Tørseth et al., 2012, Maas and Grennfelt, 2016) [Tørseth et al.,: Atmos. Chem. Phys., 12, 5447–5481, 2012]. However, it is an open question whether and how fast the reduction in N deposition rates will lead to the recovery of extant plant communities.  
+
+Quantifying the potential recovery of biodiversity in response to reducing air pollution requires an alternative to the space-for-time approach, ideally monitoring long-term community dynamics on permanent plots (Duprã, C. et al. Changes in species richness and composition in European acidic grasslands over the past 70 years: the contribution of cumulative atmospheric nitrogen deposition. Glob. Change Biol. 16, 344–357, (2010).
 
 One useful approach to understanding biodiversity change is through estimates of biodiversity turnover reflecting both immigration and extinction, often in a closed range of values (Hillebrand et al-2018.pdf). 
 
 Observation data of vascular plants from field recordings shows negative correlations of Nitrogen deposition with species richness and species composition in mountain hay meadows (Roth et al. 2013). 
+
 In Switzerland, grassland accounts for 70 per cent of the agricultural land. With extensive cultivation, permanent grassland has a very high biodiversity. This applies in particular to the meadows of the Swiss mountain region (Schlup et al. 2013). In the alpine region, meadows with a high plant diversity are of great importance agronomically (Leiber et al. 2005), for the image of the products and for the conservation of biodiversity (Hohl, 2006).
+
 The meta-analysis of Humbert et al. (2016) showed management and abiotic factors to interact with nitrogen addition to drive plant community changes: The overall effects of N addition on plant species richness and diversity (Shannon index) were more pronounced in managed experimental sites with warmer summers. Management regimes of accessible mountainous areas are intensified, while poorly accessible mountainous areas are being abandoned (Tasser and Tappeiner, 2002; Graf et al., 2014, Strebel and Bühler, 2015). This change in traditional management regimes is considered as a major driver that endangers grassland biodiversity in mountainous regions of Europe (Niedrist et al., 2009; Homburger and Hofer, 2012). 
 
 On European mountain summits, plants shifted upwards in the last decades (Rumpf et al. 2018). The authors conclude that «These results suggest that recent climate warming interacted with airborne nitrogen deposition in driving the observed dynamics. As changes increased more for species from lower elevations and eutrophic plant species showed the strongest increase in abundance, these findings might be relevant for mountain hay meadows, too. 
@@ -64,10 +67,10 @@ We matched the habitat types of the Swiss classification system with the categor
 For each survey (a survey consists of the two visits per season) we calculated the following community measures: (1) The number of recorded species (species richness), the community mean of indicator values of recorded species for  temperature (2), humidity (3), nutrients (4) and light (5). The indicator values were obtained from the recalibrated indicator values for the Swiss Flora [@Landolt2010]. Additionally to these five community measures that describe the state of plant communities for each site at a given time point, we also estimated the temporal turnover (i.e. species exchange ratio sensu @Hillebrand2018) as the proportion of species that differ between two time points to describe the community change between two time points.
 
 ## Environmental gradients {-}
-We expected different global change patterns to simultaneously cause temporal change in mountain hay communities. To better disentangle the importance of these mechanisms we ordered the sites along four main environmental gradients. First we expected communities to response to climate warming and the response might be different depending along the temperature gradient [@Roth2014]. To describe the temperature gradient we used the annual mean temperature per site from the WordClim database [@Fick2017]. Another key drivers for plants that is likely to be affected by climate change is precipitation [@Beier2012]. We used the annual mean precipitation per site from the WordClim database [@Fick2017].Further, we estimated atmospheric N deposition for each site using a pragmatic approach described in @Rihm2001 that combines monitoring data, spatial interpolation methods, emission inventories, statistical dispersion models and inferential deposition models. For details on the estimation of N deposition see @Rihm2001 and @Roth2017. Finally we used inclination as proxy for land-use intensity because we expected that steeper sites are likely to be less intensively managed. (folgenden Satz streichen?) We expect that well-accessible sites become more intensively managed, whereas management intensity will rather decrease at remote sites [@Strebel2015].
+We expected different global change patterns to simultaneously cause temporal change in mountain hay communities. To better disentangle the importance of these mechanisms we ordered the sites along four main environmental gradients. First we expected communities to response to climate warming and the response might be different depending along the temperature gradient [@Roth2014]. To describe the temperature gradient we used the mean annual temperature per site from the WordClim database [@Fick2017]. Another key drivers for plants that is likely to be affected by climate change is precipitation [@Beier2012]. We used the annual precipitation per site from the WordClim database [@Fick2017].Further, we estimated atmospheric N deposition for each site using a pragmatic approach described in @Rihm2001 that combines monitoring data, spatial interpolation methods, emission inventories, statistical dispersion models and inferential deposition models. For details on the estimation of N deposition see @Rihm2001 and @Roth2017. Finally we used inclination as proxy for land-use intensity because we expected that steeper sites are likely to be less intensively managed [@Strebel2015].
 
 ## Statistical analyses {-}
-To estimate the linear trend over time for each of the five community measures we applied linear mixed models (LMM) with normal distribution except for alpha-diversity with Poisson distribution and the logarithm as link function. We specified site specific trends with the assumption that the between-site differences in intercepts and slopes can be described with normal distributions [i.e. a random intercept random slope model, @German2006]. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
+To estimate the linear trend over time for each of the five community measures we applied linear mixed models (LMM) with normal distribution except for species-richness with Poisson distribution and the logarithm as link function. We specified site specific trends with the assumption that the between-site differences in intercepts and slopes can be described with normal distributions [i.e. a random intercept random slope model, @German2006]. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
 
 To infer whether species turnover was changing along the gradient, we used a Binomial-LMM with the proportion of species that differed between two surveys as dependent variable and the site gradients and period (first/second vs. second/third surveys) as predictors and site-ID as random effect. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
 
@@ -80,7 +83,7 @@ To estimate the effect of Nitrogen deposition on total species richness at a giv
 # Results {-}
 ## Temporal change in community structures {-}
 ```{r communitytrendscalc}
-res <- tibble(Measures = c("Alpha-diversity", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
+res <- tibble(Measures = c("Species-richness", "Temperature value", "Huminity value", "Nutrients value", "Light value"),
               'Period 1' = NA,
               'Period 2' = NA,
               'Period 3' = NA,
@@ -89,7 +92,7 @@ res <- tibble(Measures = c("Alpha-diversity", "Temperature value", "Huminity val
               '95%' = NA,
               'Prob. for Trend' = NA)
 
-# Alpha diversity (species richness) 
+# Species richness
 res[1, c("Period 1", "Period 2", "Period 3")] <- tapply(surv$SR, surv$Visit, mean)
 load("Modelfit/SR-trend.RData")
 res[1, "Trend"] <- fixef(mod)["yr"]
@@ -123,12 +126,12 @@ res[5, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 ```
 
 ```{r communitytrendstab, echo=FALSE}
-options(knitr.kable.NA = '')
+options(knitr.kable.NA = '') 
 kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of community structure for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for species richness with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution of the linear trend. The column 'Prob. for trend' gives the probability that the linear trend is $> 0$.")
 ```
 
-The five measures of plant community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of alpha-diversity and the average indicator values for temperature, humidity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average indicator value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the indicator value for temperature (probability of increase: `r 
-res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the indicator value for light (probability of decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`) and it was least likely for the species richness (probability of increase: `r res %>% filter(Measures == "Alpha-diversity") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrients value") %>% pull("Prob. for Trend")`. 
+The five measures of plant community structure suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of species-richness and the average indicator values for temperature, humidity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average indicator value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the indicator value for temperature (probability of increase: `r 
+res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the indicator value for light (probability of decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`) and it was least likely for the species richness (probability of increase: `r res %>% filter(Measures == "Species-richness") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrients value") %>% pull("Prob. for Trend")`. 
 
 ## Species turnover {-}
 ```{r turnover}
@@ -314,7 +317,7 @@ Although NOx emissions in Switzerland decreased by 46% between 1990 and 2010 and
 - *Replacement of oligotrophic with eutrophic species is faster than the oposite direction*: Eutrophic species have rather high local survival across the entire deposition gradient, while oligotrophic species have much reduced local survival at high N deposition. This suggests that it takes 
 more time to replace eutrophic by oligotrophic species than replacing oligotrophic by eutrophic species. Climatic effects may be more likely to be reversed than effects due to fertilization.
 
-- *Methodological point*: The rather large spatial turnover might be partly explained by species that remained undetected in one of the surveys. From the randomly selected quality control of the BDM 17 mountain hay meadows were investigated from 2003 to 2017. Species richness was surveyed in the same year by two independent botanists. The species match is (mean ± SD) 85 ± 5.2 per cent, suggesting that at least a portion of the turn over is due to agent effects. However, our results suggest that turnover is caused at least partly by species with specific indicator values. This deviation from what we would expect under random species turnover is unlikely to be explained by species that remained undetected.
+- *Methodological point*: The rather large spatial turnover might be partly explained by species that remained undetected in one of the surveys. From the randomly selected quality control of the BDM 17 mountain hay meadows were investigated from 2003 to 2017. Species richness was surveyed in the same year by two independent botanists. The species match is (mean $\pm$ SD) 85 $\pm$ 5.2 per cent, suggesting that at least a portion of the turn over is due to agent effects. However, our results suggest that turnover is caused at least partly by species with specific indicator values. This deviation from what we would expect under random species turnover is unlikely to be explained by species that remained undetected.
 
 - *Empirical critical loads*: Our data on colonization and local survival (i.e. temporal variation) confirm the empirical critical loads that we inferred from analysing spatial co-variation of N deposition and species richness.  
 
@@ -334,6 +337,6 @@ We thank the dedicated and qualified botanists who conducted fieldwork. The Swis
 
 ```{r}
 # The MS was build with the following R sesstion:
-writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
+writeLines(capture.output(sessionInfo()), "Settings/sessionInfo.txt")
 ```
 

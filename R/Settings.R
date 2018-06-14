@@ -30,6 +30,7 @@ load("RData/pl.RData")
 load("RData/sites.RData")
 load("RData/coldat.RData")
 load("RData/survdat.RData")
+load("RData/turnover_double.RData")
 
 #------------------------------------------------------------------------------------------------------
 # Settings 

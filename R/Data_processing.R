@@ -76,6 +76,7 @@ surv <- surv %>% left_join(
     group_by(aID_KD) %>% 
     dplyr::summarise(
       SR = n(),
+      SR_olig = sum(N <= 2, na.rm = TRUE),
       T = mean(T, na.rm = TRUE), 
       F = mean(F, na.rm = TRUE),
       N = mean(N, na.rm = TRUE),

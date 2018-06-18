@@ -22,7 +22,7 @@ affiliation:
   - code: 4
     address: Federal Office for the Environment (FOEN), Air Pollution Control and Chemicals Division, 3003 Bern, Switzerland
 abstract: >
-  Nitrogen (N) deposition is a major threat to biodiversity of many habitats. The recent introduction of cleaner technologies in Switzerland has let to reductions in the emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition. We infered different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring.  
+  Nitrogen (N) deposition is a major threat to biodiversity of many habitats. The recent introduction of cleaner technologies in Switzerland has let to reductions in the emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition. We infered different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows using data from the Swiss biodiversity monitoring.  
   
 header-includes: >
   \usepackage{lipsum}
@@ -38,11 +38,9 @@ source("R/Settings.R")
 
 
 # Introduction {-}
-Nitrogen deposition is one of the major threats to biodiversity (Sala 2000, Bobbink 2010, Menier et al. 2016). Especially, there is strong evidence for the reduction in diversity of species-rich grasslands in Europe (Stevens et al. 2006, Maskell et al. 2010, Duprè et al. 2010). 
+Nitrogen deposition is the entry of reactive nitrogen compounds into water and soil via deposition through the air. Toghether with land-use and climate change, Nitrogen deposition is one of the major threats to biodiversity [@Sala2000; @Bobbink2010]. Since Nitrogen is an essential plant nutrient and many species-rich communities are adapted to conditions of low N availability [@Vitousek1997], the addition of Nitrogen strongly alter these communities [@@Sala2000]. While there is strong evidence for the reduction in diversity of species-rich grasslands in Europe due to increased Nitrogen deposition [@Stevens2006; @Maskell2010; @Dupre2010], mountain grasslands have received less attention [@Humbert2016].
 
-Fertilizing experiments show that plant biodiversity in mountain grasslands is negatively affected by nitrogen addition, too (Humbert et al. 2016). 
-
-Since the late 1980s measures to reduce atmospheric pollution have successfully reduced emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition in many parts of Europe (Tørseth et al., 2012, Maas and Grennfelt, 2016) [Tørseth et al.,: Atmos. Chem. Phys., 12, 5447–5481, 2012]. However, it is an open question whether and how fast the reduction in N deposition rates will lead to the recovery of extant plant communities.  
+Since the late 1980s measures to reduce atmospheric pollution have successfully reduced emissions of nitrogen oxides, with affiliated decrease in Nitrogen deposition in many parts of Europe [@Torseth2012](Maas and Grennfelt, 2016). However, it is an open question whether and how fast the reduction in N deposition rates will lead to the recovery of extant plant communities.  
 
 Quantifying the potential recovery of biodiversity in response to reducing air pollution requires an alternative to the space-for-time approach, ideally monitoring long-term community dynamics on permanent plots (Duprã, C. et al. Changes in species richness and composition in European acidic grasslands over the past 70 years: the contribution of cumulative atmospheric nitrogen deposition. Glob. Change Biol. 16, 344–357, (2010).
 

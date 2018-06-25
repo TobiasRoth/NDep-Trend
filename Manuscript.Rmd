@@ -10,6 +10,8 @@ author:
     affiliation: 1 
   - name: Lukas Kohli
     affiliation: 2
+  - name: Christoph Bühler
+    affiliation: 2
   - name: Beat Rihm
     affiliation: 3
   - name: Reto Meuli

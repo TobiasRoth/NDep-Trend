@@ -6,8 +6,6 @@ author:
     affiliation: 1, 2
     corresponding: true
     email: t.roth@unibas.ch
-  - name: Valentin Amrhein
-    affiliation: 1 
   - name: Lukas Kohli
     affiliation: 2
   - name: Christoph Bühler
@@ -18,6 +16,8 @@ author:
     affiliation: 4  
   - name: Reto Meier
     affiliation: 5    
+  - name: Valentin Amrhein
+    affiliation: 1 
   
 affiliation:
   - code: 1
@@ -72,19 +72,25 @@ For each survey (a survey consists of two  visits per season) we calculated the 
 To test data quality, independent replicate surveys are routinely performed within the BDM program by botanists who were not involved in the regular BDM surveys. The regular surveyors did not know if and which sites were replicated [@Plattner2004]. We used the data from `r nrow(turnover_double)` such replicated surveys that were available to calculate the pseudo-turnover, which is the proportion of species that differed between two surveys that were conducted by two different surveyors during the same year on the same site.
 
 ## Environmental gradients {-}
-We expected different global change patterns to simultaneously cause temporal change in mountain hay communities. To better disentangle the importance of these mechanisms we ordered the sites along four main environmental gradients. First, we expected communities to response to climate warming with this response being dependent on the position of the site along the temperature gradient [@Roth2014]. To describe the temperature gradient, we used the mean annual temperature per site from the WordClim database [@Fick2017]. Another key driver for plants that is likely to be affected by climate change is precipitation [@Beier2012]. We used the annual precipitation per site from the WordClim database [@Fick2017]. Further, we estimated atmospheric N deposition for each site using a pragmatic approach  that combines monitoring data, spatial interpolation methods, emission inventories, statistical dispersion models and inferential deposition models [@RihmAchermann2016]. Finally, we used inclination as proxy for land-use intensity because we expected that steeper sites are likely to be less intensively managed [@Strebel2015].
+We expected different global change patterns to simultaneously cause temporal change in mountain hay communities. To better disentangle the importance of these mechanisms we ordered the sites along four main environmental gradients. First, we expected communities to response to climate warming with this response being dependent on the position of the site along the temperature gradient [@Roth2014]. To describe the temperature gradient, we used the mean annual temperature per site from the WordClim database [@Fick2017]. 
+The average $\pm$ SD mean annual temperature at our sites was `r mean(sites$TemperatureR / 10)` $\pm$ `r sd(sites$TemperatureR / 10)` $^\circ$C. 
+Another key driver for plants that is likely to be affected by climate change is precipitation [@Beier2012]. We used the annual precipitation per site from the WordClim database [@Fick2017]. 
+The average annual precipitation at our sites was `r mean(sites$PrecipitationR)` $\pm$ `r sd(sites$PrecipitationR)` mm. Further, we estimated atmospheric N deposition for each site using a pragmatic approach  that combines monitoring data, spatial interpolation methods, emission inventories, statistical dispersion models and inferential deposition models [@RihmAchermann2016].
+The average nitrogen deposition at our sites was `r mean(sites$NTOT_2000)` $\pm$ `r sd(sites$NTOT_2000)` kg ha$^{-1}$ yr$^{-1}$ in 2000 and `r mean(sites$NTOT_2015)` $\pm$ `r sd(sites$NTOT_2015)` kg ha$^{-1}$ yr$^{-1}$ in 2015. 
+Finally, we used inclination as proxy for land-use intensity because we expected that steeper sites are likely to be less intensively managed [@Strebel2015]. The average inclination at our sites was `r mean(sites$InclinationR)` $\pm$ `r sd(sites$InclinationR)`$^\circ$. 
 
 ## Statistical analyses {-}
 To estimate the linear trend over time for each of the five biodiversity endpoints we applied linear mixed models (LMM) with normal distribution except for species-richness with Poisson distribution. We specified site specific trends with the assumption that the between-site differences in intercepts and slopes can be described with normal distributions [i.e. a random intercept random slope model, @Gelman2006]. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
 
-To infer whether species turnover was changing along the gradient, we used a Binomial-LMM with the proportion of species that differed between two surveys as dependent variable and the site gradients and period (first/second vs. second/third surveys) as predictors and site-ID as random effect. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
+To infer whether species turnover was changing along the gradient, we used a Binomial-GLMM with the proportion of species that differed between two surveys as dependent variable and the site gradients and period (first/second vs. second/third surveys) as predictors and site-ID as random effect. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018].
 
 To infer whether species that colonized or disappeared from a site had particular indicator values that differed from the other species at that site, we produced for each site a list with all species that were recorded during the three surveys (total community). We then calculated the community mean (CM) of the indicator value for all species that colonized the site during the three surveys (i.e. not recorded during first survey and recorded during second or not recorded during second and recorded during third). We then randomly selected the same number of species from the total community and also calculated the community mean of the value for these species (random-CM). We repeated the random selection of species 1000 times. Then we calculated the differences of the CM minus the average of the random-CMs to obtain a standardized difference (standardized-CM) of how different the disappearing species were from random expectation. For example, a difference < 0 would suggest that the indicator values of colonizing species were lower than might be expected from random colonisation from the species-pool for this site. We applied this method for both colonizing and disappearing species and for the indicator values for temperature, humidity, nutrients and light (see Appendix A). We then tested whether this standardized difference is changing along the corresponding gradient (inferred from independet datasets, see Environmental gradients section) using linear models. Model parameters were estimated in a Bayesian framework using the R-Package *rstanarm* [@Stan2016, @Muth2018]. 
 
-We used logistic-LMM to analyse whether the colonization probability or local survival probability was changing along the Nitrogen deposition gradient and whether this change depended on the species indicator value for nutrients. To analyse the colonization probability of species, we selected all species that were not observed during the first survey. For each of these species we asked if they were observed (then Occ = 1) or not observed (then Occ = 0) during the second survey. The same was also done for all species that were not observed during the second survey if they were observed or not observed (then Occ = 0) during the third survey. The variable 'occ' was then used as dependent variable in the logistic-LMM. As predictor variables the model contained the Nitrogen deposition of the site, the indicator value for nutrients of the species and the interaction of these two variables. Additionally, species-ID and site-ID were included as random effects. The same logistic LMM was also used to investigate local survival probabilities. In that case, however, we selected all species that were recorded during the first or second survey and the variable 'occ' then indicated whether or not the species was also observed during the next survey. Model parameters were estimated using an approximate Bayesian approach using the R-Package *arm* [@arm2018].
+We used logistic-GLMM to analyse whether the colonization probability or local survival probability was changing along the Nitrogen deposition gradient and whether this change depended on the species indicator value for nutrients. To analyse the colonization probability of species, we selected all species that were not observed during the first survey. For each of these species we asked if they were observed (then Occ = 1) or not observed (then Occ = 0) during the second survey. The same was also done for all species that were not observed during the second survey if they were observed or not observed (then Occ = 0) during the third survey. The variable 'occ' was then used as dependent variable in the logistic-GLMM. As predictor variables the model contained the Nitrogen deposition of the site, the indicator value for nutrients of the species and the interaction of these two variables. Additionally, species-ID and site-ID were included as random effects. The same logistic-GLMM was also used to investigate local survival probabilities. In that case, however, we selected all species that were recorded during the first or second survey and the variable 'occ' then indicated whether or not the species was also observed during the next survey. Model parameters were estimated using an approximate Bayesian approach using the R-Package *arm* [@arm2018].
 
 To estimate the effect of N deposition on total species richness at a given point in time, we described the plant species richness at the sites using a generalized linear model with Poisson distribution and the logarithm as link function. As predictors we used the four environmental gradients as described above. Model parameters were estimated using an approximate Bayesian approach using the R-Package *arm* [@arm2018].
 
+Fully executable R code and a description to produce this manuscript are provided at https://github.com/TobiasRoth/NDep-Trend. 
 
 # Results {-}
 ## Temporal change in community structures {-}
@@ -135,7 +141,6 @@ res[5, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 options(knitr.kable.NA = '') 
 kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of the biodiversity endpoints for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for species richness with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution of the linear trend. The column 'Prob. for trend' gives the probability that the linear trend is $> 0$. Indicator values according to Landolt et al. (2010).")
 ```
-
 
 
 Species richness and four measures of plant community structure according to Landolt indicator values (i.e. biodiversity endpoints) suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods the averages of species-richness and the average indicator values for temperature, humidity, nutrients and light did not vary much among the three sampling periods and the estimated trends were rather small. Except for average indicator value for temperature, the 90% credible-interval of the temporal trend contained zero. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the indicator value for temperature (probability of increase: `r 
@@ -209,20 +214,20 @@ High species turnover at a site is the result of species that disappeared from t
 While colonizing species had higher temperature values compared to what we would expect under random colonization, the differences between colonizing species and random colonization was about four times smaller than the difference in indicator value for nutrients between colonizing species and random species. Nevertheless, the variation in indicator value for temperature is revealed to be important to explain the total species turnover. This is because disappearing species tend to have lower temperature values than random species as well as colonizing species tend to have higher temperature values than random species; both processes lead to an overall replacement of species with lower temperature value with species with higher temperature values. This was not the case for the indicator value for nutrients: species with lower nutrients values tended to be more likely to disappear from as well as to colonize sites compared to random species (Table \@ref(tab:difffromrandomtab)). See also Appendix A where we present detailed results for the comparison between colonizing or disappearing species with randomly selected species. 
 
 ## Potential effects of reduction in Nitrogen emmissions {-}
-```{r Ndepchange, fig.cap="(a) The nitrogen (N) deposition in 2000 and (b) the change in N deposition between 2000 and 2015 along the elevational gradient of the study sites."}
+```{r Ndepchange, fig.cap="(a) The nitrogen (N) deposition in 2000 and (b) the change in N deposition between 2000 and 2015 along the N deposition gradient of the study sites in 2000."}
 p1 <- ggplot(sites, aes(x = Elevation * 500 + 1000, y = NTOT_2000)) +
   geom_point(cex = 0.8) +
   geom_smooth(method = loess) +
   geom_abline(intercept = 0, slope = 0, lty = 3) +
   labs(title = "(a) Nitrogen deposition in 2000", 
-       y = expression(paste("N deposition (kg ", ha^{-1}," ", yr^{-1}, ")")), 
+       y = expression(paste("N deposition in 2000 (kg ", ha^{-1}," ", yr^{-1}, ")")), 
        x = "Elevation (m)") 
-p2 <- ggplot(sites, aes(x = Elevation * 500 + 1000, y = (NTOT_2015 - NTOT_2000) )) +
+p2 <- ggplot(sites, aes(x = NTOT_2000, y = (NTOT_2015 - NTOT_2000) )) +
   geom_point(cex = 0.8) +
   geom_smooth(method = loess)  +
   labs(title = "(b) Temporal change (2000 to 2015)", 
        y = expression(paste(Delta, "N deposition (kg ", ha^{-1}," ", yr^{-1}, ")")), 
-       x = "Elevation (m)") +
+       x = expression(paste("N deposition in 2000 (kg ", ha^{-1}," ", yr^{-1}, ")"))) +
   geom_hline(yintercept = 0, lty = 2) 
 multiplot(p1, p2, cols = 2)
 ```
@@ -268,7 +273,7 @@ CLs <- map_dbl(post, "CL")
 CL_col <- median(CLs, na.rm = TRUE)
 p1 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
-  geom_line() +
+  geom_line(lwd = 1.5) +
   labs(title = "(a) Colonization", 
        y = "Colonization probability", 
        x = expression(paste("N deposition (kg ", ha^{-1}," ", yr^{-1}, ")"))) +
@@ -288,7 +293,7 @@ CLs <- map_dbl(post, "CL")
 CL_surv <- median(CLs, na.rm = TRUE)
 p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
   geom_ribbon(aes(ymin = low, ymax = high), fill = "black", col = "white", alpha = 0.2) +
-  geom_line() +
+  geom_line(lwd = 1.5) +
   labs(title = "(b) Local survival", 
        y = "Local survival probability", 
        x = expression(paste("N deposition (kg ", ha^{-1}," ", yr^{-1}, ")"))) +
@@ -302,7 +307,7 @@ p2 <- ggplot(res, aes(x = X, y = mean, colour = value, shape = value)) +
 multiplot(p1, p2, cols = 2)
 ```
 
-In Fig. \@ref(fig:cl) we compare the colonization and local survival probability of oligotrophic species (indicator value of nutrients <3) and eutrophic species (indicator value of nutrients > 3) along the N deposition gradient. Local survival probability was the same for oligotrophic and euthrophic species at a deposition rate of `r CL_surv` kg N ha$^{-1}$ yr$^{-1}$; colonization probability was the same for oligotrophic and eutrophic species at a deposition rate of `r CL_col` kg N ha$^{-1}$ yr$^{-1}$. In only `r mean((sites$NTOT * 10 + 10) < 12.5)`% of the sites the deposition rate was below 12.5 kg N ha$^{-1}$ yr$^{-1}$ where the replacement of eutrophic with oligotrophic species is likely.
+In Fig. \@ref(fig:cl) we compare the colonization and local survival probability of oligotrophic species (indicator value of nutrients <3) and eutrophic species (indicator value of nutrients > 3) along the N deposition gradient. Local survival probability was the same for oligotrophic and euthrophic species at a deposition rate of `r CL_surv` kg N ha$^{-1}$ yr$^{-1}$; colonization probability was the same for oligotrophic and eutrophic species at a deposition rate of `r CL_col` kg N ha$^{-1}$ yr$^{-1}$. In `r 100 * mean((sites$NTOT * 10 + 10) < 12.5)`% of the sites the deposition rate was below 12.5 kg N ha$^{-1}$ yr$^{-1}$ where the replacement of eutrophic with oligotrophic species is likely.
 
 While we could not detect a consistent decrease in average indicator values for nutrients (Table \@ref(tab:communitytrendstab)), the higher colonization rate of species with low nutrient value at sites with low N deposition rate seems to affect the spatial pattern of oligotrophic species richness: sites with low N deposition are likely to become more species rich over time. This likely results in steeper slope of the negative relationship between N deposition and oligotrophic species richness, when comparing this relationshep with a spatial approach as in @Roth2013. Indeed, if we apply such an approach at different points in time to infer the effects of N deposition on the spatial variation of oligotrophic species richness, the resulting effect size (i.e. the slope) became more negative over time (Fig. \@ref(fig:figconsequences)).
 

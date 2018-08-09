@@ -39,7 +39,7 @@ load("RData/turnover_double.RData")
 opts_chunk$set(echo = FALSE, hide = TRUE, cache = TRUE, warning = FALSE, message = FALSE,
                fig.asp = .4, fig.width = 8, out.width = "100%")
 
-# Stting for withing text juncs
+# Setting for withing text juncs
 inline_hook <- function(x) {
   if (is.numeric(x)) {
     x <- format(x, nsmall = 2, digits = 2)

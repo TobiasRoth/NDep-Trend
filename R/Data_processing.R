@@ -52,10 +52,14 @@ sites <- tibble(aID_STAO = as.integer(sel)) %>%
                         NTOT_2000 = NTOT2000_Wiesen, NTOT_2010 = NTOT2010_Wiesen, NTOT_2015 = NTOT2015_Wiesen), copy = TRUE)
 
 # Standardize covariates
+sites$ElevationR <- sites$Elevation
 sites$Elevation <- (sites$Elevation - 1000) / 500
+sites$TemperatureR <- sites$Temperature 
 sites$Temperature <- (sites$Temperature - 50) / 10
+sites$PrecipitationR <- sites$Precipitation
 sites$Precipitation <- (sites$Precipitation - 1000) / 200
 sites$NTOT <- (sites$NTOT_2010 - 10) / 10
+sites$InclinationR <- sites$Inclination
 sites$Inclination <- (sites$Inclination - 10) / 10
 sites$pH <- sites$pH - 6
 

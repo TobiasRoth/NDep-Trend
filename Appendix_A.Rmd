@@ -50,7 +50,7 @@ makesim <- function(EL, gain, sitem) {
   res
 }
 ```
-Temporal turnover is caused by species that are lost between surveys (or are overseen in the second survey) and/or are gained between surveys (or overseen during the first survey). It is likely that different drivers such as Nitrogen deposition or climate warming would cause different species to colonize or disappear from sites. Also methodological issues such as imperfect detection are likely to result in species with particular characteristics that are overseen in one survey and thus result in apparent species gains or losses. We here borrowed ideas from functional ecology in order to try to disentangle the potential drivers of species gains and losses: We compared the characteristics of the species that newly colonized or that disappeared from a site with the same amount of species that were randomly selected from all the species that were observed at the site (i.e. the species assemblage). Instead of the functional traits that are traditionally used in functional ecology such as species height, we used the Ellenberg values that we assumed could best reflect the main drivers that are likely to cause shifts in mountain hay plant communities. This were the Ellenberg values for temperature (that are likely to respond to climate warming), humidity (likely to respond to changes in precipitation), nutrients (likely to change in response to Nitrogen deposition and land-use intensity) and light (likely to change in response to land-use intensity).  
+Temporal turnover is caused by species that are lost between surveys (or are overseen in the second survey) and/or are gained between surveys (or overseen during the first survey). It is likely that different drivers such as Nitrogen deposition or climate warming would cause different species to colonize or disappear from sites. Also methodological issues such as imperfect detection are likely to result in species with particular characteristics that are overseen in one survey and thus result in apparent species gains or losses. We here borrowed ideas from functional ecology in order to try to disentangle the potential drivers of species gains and losses: We compared the characteristics of the species that newly colonized or that disappeared from a site with the same amount of species that were randomly selected from all the species that were observed at the site (i.e. the species assemblage). Instead of the functional traits that are traditionally used in functional ecology such as species height, we used the Ellenberg values that we assumed could best reflect the main drivers that are likely to cause shifts in mountain hay plant communities. This were the Ellenberg values for temperature (that are likely to respond to climate warming), soil moisture (likely to respond to changes in precipitation), nutrients (likely to change in response to Nitrogen deposition and land-use intensity) and light (likely to change in response to land-use intensity).  
 
 # Results {-}
 
@@ -83,7 +83,7 @@ pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
 multiplot(ploss, pgain, cols = 2)
 ```
 
-```{r Fplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{humidity} of lost (A) and newly appearing (B) species, compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
+```{r Fplot, fig.cap="\\textit{Average Ellenberg value for \\textbf{soil moisture} of lost (A) and newly appearing (B) species, compared to the same number of species that were randomly selected from all species recorded at the sample site (i.e. random communities). Crosses indicate the community mean of lost and newly appearing species; the grey vertical lines indicate the range of the 5\\% and 95\\% quantiles of community means calculated from the 1000 random communities for each site. The curves show the regression lines with third order polynomials for the community means of lost and newly appearing species (black solid lines) and for the average community means of random communities (orange dotted lines).}"}
 # Make calculations and plot for Ellenberg F value
 tres <- makesim(EL = "F", gain = FALSE, sitem = "Precipitation")
 save(tres, file = "Communitysim/lossF.RData")
@@ -96,7 +96,7 @@ ploss <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 1000) / 200, labels = txlab, limits = c(-1, NA)) +
   scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2, 4)) +
-  labs(x = "Annual mean precipitation", y = "Ellenberg humidity value\n(community mean)",
+  labs(x = "Annual mean precipitation", y = "Ellenberg soil moisture value\n(community mean)",
        title = "(A) Species losses") 
 tres <- makesim(EL = "F", gain = TRUE, sitem = "Precipitation")
 save(tres, file = "Communitysim/gainF.RData")
@@ -107,7 +107,7 @@ pgain <- ggplot(tres, aes(x = Sitemeasure, y = meanreal)) +
   stat_smooth(aes(y = mean), method = "lm", formula = y ~ poly(x,3), se = FALSE, col = "orange", lty = 2) +
   scale_x_continuous(breaks = (txlab - 1000) / 200, labels = txlab, limits = c(-1, NA)) +
   scale_y_continuous(breaks = tylab, labels = tylab, limits = c(2, 4)) +
-  labs(x = "Annual mean precipitation", y = "Ellenberg humidity value\n(community mean)",
+  labs(x = "Annual mean precipitation", y = "Ellenberg soil moisture value\n(community mean)",
        title = "(B) Species gains") 
 multiplot(ploss, pgain, cols = 2)
 ```

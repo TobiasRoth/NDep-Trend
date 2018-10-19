@@ -14,6 +14,8 @@ rm(list=ls(all=TRUE))
 # Libraries
 library(tidyverse)
 library(simba)
+library(RColorBrewer)
+library(BDM)
 
 # Connection to data base
 db <- src_sqlite(path = "~/Documents/Dropbox/DB_BDM.db", create = FALSE)
@@ -97,7 +99,9 @@ pl <- tbl(db, "PL") %>%
   as.tibble() %>% 
   filter(!is.na(match(aID_KD, surv$aID_KD))) %>% 
   left_join(tbl(db, "KD_Z9"), copy = TRUE) %>% 
-  transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, aID_SP = aID_SP, yearP = yearP, yearPl = yearPl, 
+  left_join(tbl(db, "Arten"), copy = TRUE) %>% 
+  transmute(aID_KD = aID_KD, aID_STAO = aID_STAO, aID_SP = aID_SP, 
+            Species = paste(Gattung, Art), yearP = yearP, yearPl = yearPl, 
             Visit = as.integer(floor((yearP - 1998) / 5)),
             Occ = as.integer(1)) %>% 
   left_join(tbl(db, "Traits_PL") %>% dplyr::select(aID_SP, T, F, N, L), copy = TRUE) 
@@ -173,6 +177,34 @@ survdat <- rbind(
   d %>% filter(Occ2 == 1) %>% 
     transmute(aID_STAO = aID_STAO, aID_SP =aID_SP,
               T = T, F = F, N = N, L = L, Occ = Occ3, Period = 2))
+
+#------------------------------------------------------------------------------------------------------
+# Make map with location of study plots
+#------------------------------------------------------------------------------------------------------
+# Hintergrunddaten
+load("Geodata/ch.RData")
+load("Geodata/gadm.RData")
+load("Geodata/seen.RData")
+
+## Farbeinstellugen  
+seecol <- brewer.pal(8, name = "Paired")[1]
+sitecol <- brewer.pal(8, name = "Paired")[4]
+sitecolEPT <- brewer.pal(8, name = "Paired")[8]
+
+pdf("Geodata/studysite.pdf", width = 6, height = 4)
+par(mar = c(0,0,2,0))
+plot(NA, xlim = c(490000, 840000), ylim = c(60000, 300000), type = "n", axes = FALSE)
+plot(ch, add =TRUE)
+plot(gadm, add = TRUE)
+plot(seen[1:13,], add = TRUE, col = seecol, border = seecol, lwd = 0.01)
+points(coordID2coord(sites$aID_STAO), pch = 16, cex = 0.5)
+xx <- 490000
+yy <- 80000
+lines(x=c(xx, xx+50000), y=c(yy, yy))
+lines(x=c(xx, xx), y=c(yy, yy+2000))
+lines(x=c(xx+50000, xx+50000), y=c(yy, yy+2000))
+text(xx+25000, yy-5000, "50 km", cex=0.7)
+dev.off()
 
 #------------------------------------------------------------------------------------------------------
 # Change siteID and save data

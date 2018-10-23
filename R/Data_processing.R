@@ -86,7 +86,8 @@ surv <- surv %>% left_join(
       T = mean(T, na.rm = TRUE), 
       F = mean(F, na.rm = TRUE),
       N = mean(N, na.rm = TRUE),
-      L = mean(L, na.rm = TRUE)), copy = TRUE)
+      L = mean(L, na.rm = TRUE),
+      KL = mean(KL, na.rm = TRUE)), copy = TRUE)
 
 # Standardize years
 surv$yr <- (surv$yearPl - 2010) / 10
@@ -110,10 +111,10 @@ pl <- tbl(db, "PL") %>%
 # Add data for turnover calculation to 'sites'
 #------------------------------------------------------------------------------------------------------
 for(i in 1:nrow(sites)) {
-  tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
+  tt <- simba::sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit <= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
   sites[i, "nochange1"] <- tt$a
   sites[i, "change1"] <- tt$b + tt$c
-  tt <- sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
+  tt <- simba::sim(pl %>% filter(aID_STAO == sites$aID_STAO[i] & Visit >= 2) %>% dplyr::select(aID_KD, aID_SP, Occ), method = "cocogaston", listin = TRUE, listout = TRUE)
   sites[i, "nochange2"] <- tt$a
   sites[i, "change2"] <- tt$b + tt$c
 }

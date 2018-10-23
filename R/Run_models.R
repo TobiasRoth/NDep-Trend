@@ -62,7 +62,9 @@ tt <- rbind(
     NTOT = NTOT,
     Inclination = Inclination, 
     period = 2))
-mod <- stan_glmer(cbind(change, nochange) ~ period + Temperature + Precipitation + NTOT + Inclination + (1|aID_STAO), 
+
+tt$SR <- ((tt$change + tt$nochange) - 50) / 10
+mod <- stan_glmer(cbind(change, nochange) ~ period + SR + Temperature + Precipitation + NTOT + Inclination + (1|aID_STAO), 
                 data = tt, family = binomial, cores = ncores)
 save(mod, file = "Modelfit/turnover-trend.RData")
 

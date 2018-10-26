@@ -100,7 +100,8 @@ To estimate the effect of N deposition on total species richness at a given poin
 
 ## Data accessibility and reproducibility of results {-}
 Data and R Markdown documents (Manuscript.Rmd and Appendix_A.Rmd) to fully reproduce this manuscript including figures and tables are provided at https://github.com/TobiasRoth/NDep-Trend. An R Markdown document is written in markdown (plain text format) and contains chunks of embedded R code to produce the figures and tables [@Xie2018]. Raw data for analyses are provided in the folder 'RData' and the folder 'R' contains the R-Script that was used to export the data from the BDM database. The folder "Settings" contains a list of all the R packages (including version number) that were in the workspace when the manuscript was rendered. 
-Note, that the files on the github repository might have slightly changed since submitting the manuscript. The version of all files will be archived on Zenodo upon acceptance of the manuscript.
+
+The v1 release of the GitHub repository is the version  that corresponds to the initial submission  (https://github.com/TobiasRoth/NDep-Trend/releases/tag/v1), v2 is the version of the repository that corresponds to the revised version of the mansucript.The final version of the repository will be archived on Zenodo upon acceptance of the manuscript.
 
 
 # Results {-}

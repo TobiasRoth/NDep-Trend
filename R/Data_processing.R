@@ -124,7 +124,7 @@ for(i in 1:nrow(sites)) {
 #------------------------------------------------------------------------------------------------------
 # Select sites with two surveys per year
 turnover_double <- tbl(db, "KD_Z9") %>% 
-  filter(Aufnahmetyp == "Doppelaufnahme_Z9_Pflanzen") %>% 
+  filter(Aufnahmetyp == "Doppelaufnahme_Pflanzen_Z9") %>% 
   filter(yearPl >= 2003 & yearPl <= 2017) %>% 
   as.tibble() %>% 
   filter(!is.na(match(aID_STAO, sites$aID_STAO))) %>% 
@@ -194,7 +194,7 @@ sitecolEPT <- brewer.pal(8, name = "Paired")[8]
 
 pdf("Geodata/studysite.pdf", width = 6, height = 4)
 par(mar = c(0,0,2,0))
-plot(NA, xlim = c(490000, 840000), ylim = c(60000, 300000), type = "n", axes = FALSE)
+plot(NA, xlim = c(490000, 840000), ylim = c(60000, 300000), type = "n", axes = FALSE, asp = 1)
 plot(ch, add =TRUE)
 plot(gadm, add = TRUE)
 plot(seen[1:13,], add = TRUE, col = seecol, border = seecol, lwd = 0.01)

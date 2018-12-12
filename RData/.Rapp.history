@@ -1,0 +1,3 @@
+load("/Users/roth/Documents/GitHub/NDep-Trend/RData/turnover_double.RData")
+ls()
+turnover_double

@@ -31,7 +31,7 @@ affiliation:
   - code: 5
     address: Federal Office for the Environment (FOEN), Air Pollution Control and Chemicals Division, 3003 Bern, Switzerland
 abstract: >
-  Nitrogen (N) deposition is a major threat to biodiversity in many habitats. The recent introduction of cleaner technologies in Switzerland has led to a reduction in the emissions of nitrogen oxides, with a consequent decrease in N deposition. We examined different drivers of plant community change, i.e. N deposition, climate warming, and land-use change, in Swiss mountain hay meadows, using data from the Swiss biodiversity monitoring program. We compared indicator values of species that disappeared from or colonized a site (species turnover) with the indicator values of randomly chosen species from the same site. While oligotrophic plant species were more likely to colonize, compared to random expectation, we found only weak shifts in plant community composition. In particular, the average nutrient value of plant communities remained stable over time (2003-2017). We found the largest deviations from random expectation in the nutrient values of colonizing species, suggesting that N deposition or other factors that change the nutrient content of soils were important drivers of the species composition change over the last 15 years in Swiss mountain hay meadows. In addition, we observed an overall replacement of species with lower indicator values for temperature with species with higher values. Apparently, the community effects of the replacement of eutrophic species with oligotrophic species was outweighed by climate warming. Our results add to the increasing evidence that measures of community composition such as species richness or average indicator values may be relatively stable, but that this apparent stability is often accompanied by a marked turnover of species. 
+  Nitrogen (N) deposition is a major threat to biodiversity in many habitats. The recent introduction of cleaner technologies in Switzerland has led to a reduction in the emissions of nitrogen oxides, with a consequent decrease in N deposition. We examined different drivers of plant community change, i.e. N deposition, climate warming, and land-use change, in Swiss mountain hay meadows, using data from the Swiss biodiversity monitoring program. We compared indicator values of species that disappeared from or colonized a site (species turnover) with the indicator values of randomly chosen species from the same site. While oligotrophic plant species were more likely to colonize, compared to random expectation, we found only weak shifts in plant community composition. In particular, the average nutrient value of plant communities remained stable over time (2003-2017). We found the largest deviations from random expectation in the nutrient values of colonizing species, suggesting that N deposition or other factors that change the nutrient content of soils were important drivers of the species composition change over the last 15 years in Swiss mountain hay meadows. In addition, we observed an overall replacement of species with lower indicator values for temperature with species with higher values. Apparently, the community effects of the replacement of eutrophic species with oligotrophic species was outweighed by climate warming. Our results add to the increasing evidence that plant communities in changing environments may be relatively stable regarding average community composition, but that this apparent stability is often accompanied by a marked turnover of species.. 
   
 header-includes: >
   \usepackage{lipsum}
@@ -98,6 +98,8 @@ We used logistic GLMMs to analyse whether the colonization probability or local 
 
 To estimate the effect of N deposition on total species richness at a given point in time, we described the plant species richness at the sites using a generalized linear model (GLM) with Poisson distribution and the logarithm as link function. As predictors we used the four environmental gradients as described above. Model parameters were estimated in a Bayesian framework using the R-Package *arm* [@arm2018].
 
+As a summary of the result of a parameter we give the 5% and 95% quantiles of the marginal posterior distribution, which we interpreted as a compatibility interval showing effect sizes most compatible with the data, under the model and prior distribution used to compute the interval [@Amrhein2018]. 
+
 ## Data accessibility and reproducibility of results {-}
 Data and R Markdown documents (Manuscript.Rmd and Appendix_A.Rmd) to fully reproduce this manuscript including figures and tables are provided at https://github.com/TobiasRoth/NDep-Trend. An R Markdown document is written in markdown (plain text format) and contains chunks of embedded R code to produce the figures and tables [@Xie2018]. Raw data for analyses are provided in the folder 'RData' and the folder 'R' contains the R-Script that was used to export the data from the BDM database. The folder 'Settings' contains a list of all the R packages (including version number) that were in the workspace when the manuscript was rendered. 
 
@@ -158,7 +160,7 @@ res[5, 'Prob. for Trend'] <- mean(as.data.frame(mod, pars = "yr")$yr > 0)
 
 ```{r communitytrendstab}
 options(knitr.kable.NA = '')
-kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of the biodiversity endpoints for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for species richness with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution of the linear trend (90\\% credible intervals). The column 'Prob. for trend' gives the probability that the linear trend is $> 0$. Indicator values according to Landolt et al. (2010).")
+kable(res, align = c("l", rep("r", 7)), digits = 2,  booktabs = T, col.names = c("Measures", "Period 1", "Period 2", "Period 3", "Trend", "5%", "95%", "Prob. for trend"), caption = "Average measures of the biodiversity endpoints for the three sampling periods (period 1: 2003-2007; period 2: 2008-2012; period: 2013-2017). The temporal trends are given as change per 10 years and were estimated from linear mixed models with normal distribution (except for species richness with Poisson distribution and a log-link function). The measure of precision for the temporal trend is given as the 5\\% and 95\\% quantiles of the marginal posterior distribution of the linear trend (90\\% compatibility interval). The column 'Prob. for trend' gives the probability that the linear trend is $> 0$. Indicator values according to Landolt et al. (2010).")
 ```
 
 Species richness and the four measures of plant community structure according to Landolt indicator values (i.e. biodiversity endpoints) suggested that plant communities in mountain hay meadows were rather stable between 2003 and 2017 and did not show a clear increase or decrease over time (Table \@ref(tab:communitytrendstab)): for each of the three 5-year survey periods, the averages of species richness and the average indicator values for temperature, soil moisture, nutrients and light did not vary much among the three sampling periods, and the estimated trends were rather small. The results from the linear mixed models suggest that a linear temporal change was most likely for the community mean of the indicator value for temperature (probability of increase: `r res %>% filter(Measures == "Temperature value") %>% pull("Prob. for Trend")`), followed by the community mean of the indicator value for light (probability of decrease: `r 1 - res %>% filter(Measures == "Light value") %>% pull("Prob. for Trend")`). A linear temporal change was least likely for the species richness (probability of increase: `r res %>% filter(Measures == "Species richness") %>% pull("Prob. for Trend")`). The chance that the community mean of the nutrient value decreased between 2003 and 2017 was `r 1- res %>% filter(Measures == "Nutrient value") %>% pull("Prob. for Trend")`. 
@@ -196,11 +198,11 @@ getres <- function(param, gradient, file) {
   tt[1, "Estimate"] <- coef(mod)[1]
   tmp <- posterior_interval(mod, pars = "(Intercept)")[1,] %>% as.vector()
   tt[1, "5%"] <- tmp[1] 
-  tt[1, "90%"] <- tmp[2] 
+  tt[1, "95%"] <- tmp[2] 
   tt[1, "Estimate_Slope"] <- coef(mod)[2]
   tmp <- posterior_interval(mod, pars = "Sitemeasure")[1,] %>% as.vector()
   tt[1, "5%_Slope"] <- tmp[1] 
-  tt[1, "90%_Slope"] <- tmp[2] 
+  tt[1, "95%_Slope"] <- tmp[2] 
   tt
 }
 
@@ -215,7 +217,7 @@ res <- rbind(res,  getres("Light", "Inclination", "gainL.RData"))
 ```
 
 ```{r difffromrandomtab}
-kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.names = c("Indicator value", "Gradient", "Estimate", "5%", "90%", "Estimate", "5%", "90%"), caption = "Difference in the average indicator value of species that (a) disappeared from a site or (b) newly colonized a site compared to the same number of species that were randomly selected from all species recorded at a site. Shown are the results from linear models, with the difference between disappeared/colonized species and random species as dependent variable and the site-measure (gradient) as predictor variable.") %>%  
+kable(res, align = c("l", "l", rep("c", 6)), digits = 3,  booktabs = T, col.names = c("Indicator value", "Gradient", "Estimate", "5%", "95%", "Estimate", "5%", "95%"), caption = "Difference in the average indicator value of species that (a) disappeared from a site or (b) newly colonized a site compared to the same number of species that were randomly selected from all species recorded at a site. Shown are the results from linear models, with the difference between disappeared/colonized species and random species as dependent variable and the site-measure (gradient) as predictor variable.") %>%  
   kable_styling() %>% 
   group_rows("(a) Plants that disappeared from a site", 1, 4, bold = F, italic = T) %>%
   group_rows("(b) Plants that newly colonized a site", 5, 8, bold = F, italic = T) %>%
@@ -247,7 +249,7 @@ multiplot(p1, p2, cols = 2)
 
 Nitrogen deposition decreased with increasing elevation (Fig. \@ref(fig:Ndepchange)a). In 2000, only `r 100 * mean(sites$NTOT_2000 < 10)`% of sites had a N deposition rate of less than 10 kg N ha$^{-1}$ yr$^{-1}$, all situated above 1000 m. Between 2000 and 2015, the N deposition decreased on average by `r mean(sites$NTOT_2015 - sites$NTOT_2000)` $\pm$ `r sd(sites$NTOT_2015 - sites$NTOT_2000)` kg N ha$^{-1}$ yr$^{-1}$, with slightly higher net decreases at sites with previously high N deposition (Fig. \@ref(fig:Ndepchange)b).
 
-```{r cl, fig.cap="Colonization (a) and local survival (b) of oligotrophic species (indicator value for nutrients $<3$; red line) and of eutrophic species (indicator value for nutrients $>3$) along the N deposition gradient. Given are means and 95\\%-credible intervals from logistic linear mixed models. The vertical lines indicate the deposition rate, with equal colonization or survival probabilities for oligotrophic and eutrophic species, the solid line indicating the median, and the dashed lines the 5\\% and 95\\% quantiles of the marginal posterior distribution."}
+```{r cl, fig.cap="Colonization (a) and local survival (b) of oligotrophic species (indicator value for nutrients $<3$; red line) and of eutrophic species (indicator value for nutrients $>3$) along the N deposition gradient. Given are means and 95\\% compatibility intervals from logistic linear mixed models. The vertical lines indicate the deposition rate, with equal colonization or survival probabilities for oligotrophic and eutrophic species, the solid line indicating the median, and the dashed lines the 5\\% and 95\\% quantiles of the marginal posterior distribution."}
 X <- 1:30
 Xsd <- (X - 10) / 10
 
@@ -270,8 +272,8 @@ getposterior <- function(x) {
 compileres <- function(EL) {
   tt <- map(1:length(X), function(s) map(post, paste(EL)) %>% map_dbl(s))
   tibble(mean = map_dbl(tt, mean),
-         low = map_dbl(tt, quantile, probs = 0.025),
-         high = map_dbl(tt, quantile, probs = 0.975),
+         low = map_dbl(tt, quantile, probs = 0.05),
+         high = map_dbl(tt, quantile, probs = 0.95),
          X = X,
          value = paste(EL)
   )

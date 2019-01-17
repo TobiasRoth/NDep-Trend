@@ -4,7 +4,7 @@ This repository contains all the materials needed to reproduce the analyses in
 *Roth T, Kohli L, Bühler C, Rihm B, Meuli RG, Meier R, Amrhein V. (accepted for publication). Species turnover reveals hidden effects of decreasing nitrogen deposition in mountain hay meadows. [PeerJ 7:e6347 DOI 10.7717/peerj.6347](https://peerj.com/preprints/27230/).*
 
 ## Introduction
-We inferred different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring ([BDM](http://www.biodiversitymonitoring.ch/en/home.html)). The results are currently published as preeprint in [PeerJ](https://peerj.com/preprints/27230/).
+We inferred different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring ([BDM](http://www.biodiversitymonitoring.ch/en/home.html)).
 
 This repository contains the data and R-code for the analyses. The `Manuscript.Rmd` file is an [Rmarkdown](https://rmarkdown.rstudio.com) file that can be used to fully reproduce the manuscript. When rendered it is transformed into the formatted `Manuscript.pdf`.
 

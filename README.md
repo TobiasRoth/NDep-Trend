@@ -1,7 +1,7 @@
 # Plant community change in Swiss mountain hay meadows 2003-2017 [![DOI](https://zenodo.org/badge/132508622.svg)](https://zenodo.org/badge/latestdoi/132508622)
 This repository contains all the materials needed to reproduce the analyses in 
 
-*Roth T, Kohli L, Bühler C, Rihm B, Meuli RG, Meier R, Amrhein V. (accepted for publication). Species turnover reveals hidden effects of decreasing nitrogen deposition in mountain hay meadows. [PeerJ 7:e6347 DOI 10.7717/peerj.6347](https://peerj.com/preprints/27230/).*
+*Roth T, Kohli L, Bühler C, Rihm B, Meuli RG, Meier R, Amrhein V. 2019. Species turnover reveals hidden effects of decreasing nitrogen deposition in mountain hay meadows. [PeerJ 7:e6347 DOI 10.7717/peerj.6347](https://peerj.com/articles/6347/).*
 
 ## Introduction
 We inferred different drivers of community change (i.e. Nitrogen deposition, climate warming, land-use change) in Swiss mountain hay meadows. The data were obtained from the Swiss biodiversity monitoring ([BDM](http://www.biodiversitymonitoring.ch/en/home.html)).
